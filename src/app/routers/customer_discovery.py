@@ -158,13 +158,30 @@ class CustomerDiscoverer:
             )
         )
 
+        market_trends_query = f"""
+        Analyze and forecast emerging market trends in the {self.domain} domain.
+        Provide comprehensive insights including:
+        1. Technological disruptions
+        2. Regulatory landscape changes
+        3. Emerging consumer preferences
+        4. Competitive dynamics
+        5. Global economic influences
+        6. Potential future scenarios
+        7. Potential investment opportunities
+        """
+        market_trends_insights = self.llm.generate(
+            ChatRequest(
+                messages=[Message(role="user", content=market_trends_query)]
+            )
+        )
+
         self.comprehensive_report = CustomerDiscoveryReport(
             primary_domain=self.domain,
             total_market_size=sum(niche.market_size for niche in self.niches),
             niches=self.niches,
             investor_sentiment={"insights": investor_insights},
             ideal_customer_profile={"insights": ideal_customer_insights},
-            market_trends={},  # To be implemented
+            market_trends={"insights": market_trends_insights},
         )
 
     def discover(self):
