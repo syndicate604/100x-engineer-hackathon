@@ -10,11 +10,14 @@ from app.routers import (
     customer_discovery,
 )
 
-from app.database import engine, Base
+from app.db import Base, create_database_engine
+from app.config import get_settings
 
 def create_application() -> FastAPI:
     """Create and configure FastAPI application"""
     # Create database tables
+    settings = get_settings()
+    engine = create_database_engine(settings.DATABASE_URL)
     Base.metadata.create_all(bind=engine)
 
     # Initialize FastAPI app
