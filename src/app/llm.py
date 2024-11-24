@@ -59,7 +59,7 @@ class CompletionHandler:
         model_config: ModelConfig,
         messages: List[Message],
         api_key: str,
-        response_format: Optional[BaseModel] = None,
+        response_format: Optional[Type[BaseModel]] = None,
     ) -> Any:
         """Generate sync completion"""
         try:

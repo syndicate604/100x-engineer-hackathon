@@ -54,11 +54,7 @@ class CustomerDiscoverer:
         Focus on identifying key customer segments, workflows, and market characteristics.
         """
         return self.llm.generate(
-            ChatRequest(
-                messages=[
-                    Message(role="user", content=prompt)
-                ]
-            )
+            ChatRequest(messages=[Message(role="user", content=prompt)])
         )
 
     def identify_market_niches(self, high_level_query: str) -> List[str]:
@@ -69,11 +65,7 @@ class CustomerDiscoverer:
         For each niche, provide a brief description and potential market significance.
         """
         niches_response = self.llm.generate(
-            ChatRequest(
-                messages=[
-                    Message(role="user", content=prompt)
-                ]
-            )
+            ChatRequest(messages=[Message(role="user", content=prompt)])
         )
         return [niche.strip() for niche in niches_response.split("\n") if niche.strip()]
 
@@ -85,11 +77,7 @@ class CustomerDiscoverer:
         Focus on customer characteristics, market size, and key trends.
         """
         return self.llm.generate(
-            ChatRequest(
-                messages=[
-                    Message(role="user", content=prompt)
-                ]
-            )
+            ChatRequest(messages=[Message(role="user", content=prompt)])
         )
 
     def search_niche_market(self, niche: str, search_query: str) -> CustomerNiche:
@@ -133,9 +121,7 @@ class CustomerDiscoverer:
         """
         investor_insights = self.llm.generate(
             ChatRequest(
-                messages=[
-                    Message(role="user", content=investor_sentiment_query)
-                ]
+                messages=[Message(role="user", content=investor_sentiment_query)]
             )
         )
 
