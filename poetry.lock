@@ -334,6 +334,22 @@ files = [
 ]
 
 [[package]]
+name = "exa-py"
+version = "1.6.0"
+description = "Python SDK for Exa API."
+optional = false
+python-versions = "*"
+files = [
+    {file = "exa_py-1.6.0-py3-none-any.whl", hash = "sha256:a6a873212272f9430ba832e77ac4a1bd7923e806af30ecea40f750f88bb1896f"},
+    {file = "exa_py-1.6.0.tar.gz", hash = "sha256:eab27dbb1fa83023668b60f497852aaaf0890ab88827d9811f09395f2d49087c"},
+]
+
+[package.dependencies]
+openai = ">=1.10.0"
+requests = "*"
+typing-extensions = "*"
+
+[[package]]
 name = "filelock"
 version = "3.16.1"
 description = "A platform independent file lock."
@@ -1982,4 +1998,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "71d4ff2dfadd1f5404be6b16140cc2f1277bd185b22e0d81f6df9ee0e418bcfc"
+content-hash = "4f63b2a8e1517e82ef861e91564842bf5a080fe65168004a4b5ddfd53d7e83fc"

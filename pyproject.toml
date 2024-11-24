@@ -12,6 +12,7 @@ litellm = "^1.52.14"
 mypy = "^1.13.0"
 ruff = "^0.8.0"
 python-dotenv = "^1.0.1"
+exa-py = "^1.6.0"
 
 
 [build-system]
