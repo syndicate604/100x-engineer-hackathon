@@ -141,12 +141,29 @@ class CustomerDiscoverer:
             )
         )
 
+        ideal_customer_profile_query = f"""
+        Based on the market research for the {self.domain} domain, 
+        develop a comprehensive ideal customer profile. 
+        Include:
+        1. Demographic characteristics
+        2. Psychographic traits
+        3. Pain points and challenges
+        4. Buying behaviors
+        5. Technology adoption levels
+        6. Decision-making process
+        """
+        ideal_customer_insights = self.llm.generate(
+            ChatRequest(
+                messages=[Message(role="user", content=ideal_customer_profile_query)]
+            )
+        )
+
         self.comprehensive_report = CustomerDiscoveryReport(
             primary_domain=self.domain,
             total_market_size=sum(niche.market_size for niche in self.niches),
             niches=self.niches,
             investor_sentiment={"insights": investor_insights},
-            ideal_customer_profile={},  # To be implemented
+            ideal_customer_profile={"insights": ideal_customer_insights},
             market_trends={},  # To be implemented
         )
 
