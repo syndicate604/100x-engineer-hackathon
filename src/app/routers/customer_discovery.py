@@ -31,6 +31,10 @@ class CustomerDiscoveryReport(BaseModel):
     investor_sentiment: Dict[str, Any]
 
 
+class IdentifyMarketNiche(BaseModel):
+    niches: List[str]
+
+
 class CustomerDiscoverer:
     """Advanced customer discovery and market segmentation tool"""
 
@@ -65,9 +69,13 @@ class CustomerDiscoverer:
         For each niche, provide a brief description and potential market significance.
         """
         niches_response = self.llm.generate(
-            ChatRequest(messages=[Message(role="user", content=prompt)])
+            ChatRequest(
+                messages=[Message(role="user", content=prompt)],
+            ),
+            response_format=IdentifyMarketNiche,
         )
-        return [niche.strip() for niche in niches_response.split("\n") if niche.strip()]
+        niches = IdentifyMarketNiche(**niches_response).niches
+        return niches
 
     def generate_niche_search_query(self, niche: str) -> str:
         """Generate a targeted search query for a specific niche"""
@@ -83,10 +91,14 @@ class CustomerDiscoverer:
     def search_niche_market(self, niche: str, search_query: str) -> CustomerNiche:
         """Perform comprehensive market research for a specific niche"""
         # Use Exa and Jina for diverse internet search
-        exa_results = self.exa.search(search_query, num_results=10)
-        jina_results = [
-            self.jina.read_url(result.url) for result in exa_results.results
-        ]
+        try:
+            exa_results = self.exa.search(search_query, num_results=10)
+            jina_results = [
+                self.jina.read_url(result.url) for result in exa_results.results
+            ]
+        except Exception as e:
+            print(f"Exa search failed: {e}, falling back to Jina")
+            jina_results = self.jina.search(search_query)
 
         # Analyze search results
         analysis_prompt = f"""
@@ -136,13 +148,20 @@ class CustomerDiscoverer:
 
     def discover(self):
         """Execute full customer discovery workflow"""
+        print(f"Initiating customer discovery for domain: {self.domain}...")
         high_level_query = self.generate_high_level_query()
+        print(f"High-level query: {high_level_query}")
         niches = self.identify_market_niches(high_level_query)
+        print(f"Identified niches: {niches}")
 
         for niche in niches[:10]:  # Limit to 10 niches
             search_query = self.generate_niche_search_query(niche)
+            print(f"Search query for '{niche}': {search_query}")
             niche_details = self.search_niche_market(niche, search_query)
+            print(f"Details for '{niche}': {niche_details}")
             self.niches.append(niche_details)
+        
+        print("Compiling comprehensive report...")
 
         self.compile_comprehensive_report()
         return self.comprehensive_report
