@@ -92,13 +92,17 @@ class CustomerDiscoverer:
         """Perform comprehensive market research for a specific niche"""
         # Use Exa and Jina for diverse internet search
         try:
-            exa_results = self.exa.search(search_query, num_results=10)
-            jina_results = [
-                self.jina.read_url(result.url) for result in exa_results.results
+            # exa_results = self.exa.search(search_query, num_results=10)
+            search_contents = self.exa.search_and_contents(search_query)
+            search_results = [
+                search_contents.results[i].text
+                for i in range(len(search_contents.results))
             ]
+            search_results_str = " \n".join(search_results)
+
         except Exception as e:
             print(f"Exa search failed: {e}, falling back to Jina")
-            jina_results = self.jina.search(search_query)
+            search_results_str = self.jina.search(search_query)
 
         # Analyze search results
         analysis_prompt = f"""
@@ -113,7 +117,7 @@ class CustomerDiscoverer:
             ChatRequest(
                 messages=[
                     Message(role="user", content=analysis_prompt),
-                    Message(role="system", content="\n".join(jina_results)),
+                    Message(role="system", content=search_results_str),
                 ]
             )
         )
@@ -122,7 +126,7 @@ class CustomerDiscoverer:
             name=niche,
             description=niche_analysis,
             search_query=search_query,
-            search_results=jina_results,
+            search_results=[search_results_str],
         )
 
     def compile_comprehensive_report(self):
@@ -160,7 +164,7 @@ class CustomerDiscoverer:
             niche_details = self.search_niche_market(niche, search_query)
             print(f"Details for '{niche}': {niche_details}")
             self.niches.append(niche_details)
-        
+
         print("Compiling comprehensive report...")
 
         self.compile_comprehensive_report()
