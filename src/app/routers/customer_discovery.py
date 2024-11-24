@@ -170,9 +170,7 @@ class CustomerDiscoverer:
         7. Potential investment opportunities
         """
         market_trends_insights = self.llm.generate(
-            ChatRequest(
-                messages=[Message(role="user", content=market_trends_query)]
-            )
+            ChatRequest(messages=[Message(role="user", content=market_trends_query)])
         )
 
         self.comprehensive_report = CustomerDiscoveryReport(
