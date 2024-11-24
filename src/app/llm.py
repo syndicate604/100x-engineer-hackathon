@@ -11,6 +11,7 @@ from app.schemas.llm import (
     ModelConfig,
     APIKeyManager,
 )
+from typing import Type
 
 # Load environment variables at module level
 load_dotenv()
@@ -138,7 +139,7 @@ class LiteLLMKit:
         )
 
     def generate(
-        self, request: ChatRequest, response_format: Optional[BaseModel] = None
+        self, request: ChatRequest, response_format: Optional[Type[BaseModel]] = None
     ) -> Any:
         """Generate sync completion"""
         api_key = self.api_key_manager.get_key(self.model_config.provider)
