@@ -20,6 +20,15 @@ class CustomerNiche(BaseModel):
     key_characteristics: List[str] = []
 
 
+class MarketTrendAnalysis(BaseModel):
+    """Detailed market trend analysis"""
+    
+    historical_data: Dict[str, Any]
+    growth_trajectory: Dict[str, float]
+    key_inflection_points: List[Dict[str, Any]]
+    predictive_insights: Dict[str, Any]
+    visualization_data: Dict[str, Any]
+
 class CustomerDiscoveryReport(BaseModel):
     """Comprehensive customer discovery report"""
 
@@ -27,7 +36,7 @@ class CustomerDiscoveryReport(BaseModel):
     total_market_size: int
     niches: List[CustomerNiche]
     ideal_customer_profile: Dict[str, Any]
-    market_trends: Dict[str, Any]
+    market_trends: MarketTrendAnalysis
     investor_sentiment: Dict[str, Any]
 
 
@@ -158,19 +167,55 @@ class CustomerDiscoverer:
         )
 
         market_trends_query = f"""
-        Analyze and forecast emerging market trends in the {self.domain} domain.
-        Provide comprehensive insights including:
-        1. Technological disruptions
-        2. Regulatory landscape changes
-        3. Emerging consumer preferences
-        4. Competitive dynamics
-        5. Global economic influences
-        6. Potential future scenarios
-        7. Potential investment opportunities
+        Perform a comprehensive 5-year market trend analysis for the {self.domain} domain.
+        Provide a detailed report with the following structured insights:
+
+        Historical Market Analysis (2019-2024):
+        1. Year-by-year market size and growth rates
+        2. Key technological milestones
+        3. Significant market disruptions
+        4. Regulatory changes impact
+        5. Investment trends
+
+        Predictive Insights:
+        1. Projected market growth for next 3-5 years
+        2. Emerging technological trends
+        3. Potential market disruptors
+        4. Investment opportunity scoring
+        5. Risk assessment
+
+        Visualization Requirements:
+        1. Market size growth curve
+        2. Technology adoption rate
+        3. Investment flow chart
+        4. Competitive landscape evolution
+        5. Predictive trend lines
+
+        Provide data in a format suitable for creating infographics and analytical dashboards.
+        Include numerical data, percentage changes, and qualitative insights.
         """
         market_trends_insights = self.llm.generate(
             ChatRequest(messages=[Message(role="user", content=market_trends_query)])
         )
+
+        # Parse the market trends insights into a structured MarketTrendAnalysis
+        try:
+            parsed_trends = self.llm.generate(
+                ChatRequest(messages=[
+                    Message(role="system", content="Parse the following market trends into a structured JSON format"),
+                    Message(role="user", content=market_trends_insights)
+                ]),
+                response_format=MarketTrendAnalysis
+            )
+        except Exception as e:
+            # Fallback to a basic structure if parsing fails
+            parsed_trends = MarketTrendAnalysis(
+                historical_data={},
+                growth_trajectory={},
+                key_inflection_points=[],
+                predictive_insights={},
+                visualization_data={}
+            )
 
         self.comprehensive_report = CustomerDiscoveryReport(
             primary_domain=self.domain,
@@ -178,7 +223,7 @@ class CustomerDiscoverer:
             niches=self.niches,
             investor_sentiment={"insights": investor_insights},
             ideal_customer_profile={"insights": ideal_customer_insights},
-            market_trends={"insights": market_trends_insights},
+            market_trends=parsed_trends,
         )
 
     def discover(self):
