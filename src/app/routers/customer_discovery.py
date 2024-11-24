@@ -124,6 +124,11 @@ class CustomerDiscoverer:
         self.compile_comprehensive_report()
         return self.comprehensive_report
 
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/customer-discovery", tags=["customer_discovery"])
+
+@router.post("/discover")
 def customer_discovery_endpoint(domain: str):
     """FastAPI endpoint for customer discovery"""
     discoverer = CustomerDiscoverer(domain)
