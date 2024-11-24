@@ -4,9 +4,12 @@ from app.llm import LiteLLMKit
 from app.jina import JinaReader
 from app.exa import ExaAPI
 from app.config import get_settings
+from fastapi import APIRouter
+
 
 class CustomerNiche(BaseModel):
     """Represents a specific customer niche"""
+
     name: str
     description: str
     search_query: str
@@ -15,8 +18,10 @@ class CustomerNiche(BaseModel):
     growth_potential: float = 0.0
     key_characteristics: List[str] = []
 
+
 class CustomerDiscoveryReport(BaseModel):
     """Comprehensive customer discovery report"""
+
     primary_domain: str
     total_market_size: int
     niches: List[CustomerNiche]
@@ -24,10 +29,13 @@ class CustomerDiscoveryReport(BaseModel):
     market_trends: Dict[str, Any]
     investor_sentiment: Dict[str, Any]
 
+
 class CustomerDiscoverer:
     """Advanced customer discovery and market segmentation tool"""
 
-    def __init__(self, domain: str, llm_model: str = "gpt-4o", temperature: float = 0.7):
+    def __init__(
+        self, domain: str, llm_model: str = "gpt-4o", temperature: float = 0.7
+    ):
         """Initialize Customer Discoverer with LLM and external search APIs"""
         self.settings = get_settings()
         self.llm = LiteLLMKit(model_name=llm_model, temperature=temperature)
@@ -36,7 +44,7 @@ class CustomerDiscoverer:
 
         self.domain = domain
         self.niches: List[CustomerNiche] = []
-        self.comprehensive_report: CustomerDiscoveryReport = None
+        self.comprehensive_report: CustomerDiscoveryReport | None
 
     def generate_high_level_query(self) -> str:
         """Generate a high-level market research query"""
@@ -53,8 +61,10 @@ class CustomerDiscoverer:
         Identify and list 5-10 specific market niches within the {self.domain} domain.
         For each niche, provide a brief description and potential market significance.
         """
-        niches_response = self.llm.generate({"messages": [{"role": "user", "content": prompt}]})
-        return [niche.strip() for niche in niches_response.split('\n') if niche.strip()]
+        niches_response = self.llm.generate(
+            {"messages": [{"role": "user", "content": prompt}]}
+        )
+        return [niche.strip() for niche in niches_response.split("\n") if niche.strip()]
 
     def generate_niche_search_query(self, niche: str) -> str:
         """Generate a targeted search query for a specific niche"""
@@ -69,7 +79,9 @@ class CustomerDiscoverer:
         """Perform comprehensive market research for a specific niche"""
         # Use Exa and Jina for diverse internet search
         exa_results = self.exa.search(search_query, num_results=10)
-        jina_results = [self.jina.read_url(result.url) for result in exa_results.results]
+        jina_results = [
+            self.jina.read_url(result.url) for result in exa_results.results
+        ]
 
         # Analyze search results
         analysis_prompt = f"""
@@ -80,18 +92,20 @@ class CustomerDiscoverer:
         3. Key customer characteristics
         4. Emerging trends
         """
-        niche_analysis = self.llm.generate({
-            "messages": [
-                {"role": "user", "content": analysis_prompt},
-                {"role": "system", "content": "\n".join(jina_results)}
-            ]
-        })
+        niche_analysis = self.llm.generate(
+            {
+                "messages": [
+                    {"role": "user", "content": analysis_prompt},
+                    {"role": "system", "content": "\n".join(jina_results)},
+                ]
+            }
+        )
 
         return CustomerNiche(
             name=niche,
             description=niche_analysis,
             search_query=search_query,
-            search_results=jina_results
+            search_results=jina_results,
         )
 
     def compile_comprehensive_report(self):
@@ -100,7 +114,9 @@ class CustomerDiscoverer:
         Research investor sentiment and future outlook for the {self.domain} domain.
         Include perspectives from top consulting firms like McKinsey, BCG, and Bain.
         """
-        investor_insights = self.llm.generate({"messages": [{"role": "user", "content": investor_sentiment_query}]})
+        investor_insights = self.llm.generate(
+            {"messages": [{"role": "user", "content": investor_sentiment_query}]}
+        )
 
         self.comprehensive_report = CustomerDiscoveryReport(
             primary_domain=self.domain,
@@ -108,7 +124,7 @@ class CustomerDiscoverer:
             niches=self.niches,
             investor_sentiment={"insights": investor_insights},
             ideal_customer_profile={},  # To be implemented
-            market_trends={}  # To be implemented
+            market_trends={},  # To be implemented
         )
 
     def discover(self):
@@ -124,9 +140,9 @@ class CustomerDiscoverer:
         self.compile_comprehensive_report()
         return self.comprehensive_report
 
-from fastapi import APIRouter
 
 router = APIRouter(prefix="/customer-discovery", tags=["customer_discovery"])
+
 
 @router.post("/discover")
 def customer_discovery_endpoint(domain: str):
