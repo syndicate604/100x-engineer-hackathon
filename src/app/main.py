@@ -13,6 +13,7 @@ from app.routers import (
 from app.db import Base, create_database_engine
 from app.config import get_settings
 
+
 def create_application() -> FastAPI:
     """Create and configure FastAPI application"""
     # Create database tables
@@ -24,7 +25,7 @@ def create_application() -> FastAPI:
     app = FastAPI(
         title="Market Intelligence Platform",
         description="Comprehensive market research and business intelligence tool",
-        version="0.1.0"
+        version="0.1.0",
     )
 
     # Add CORS middleware
@@ -45,5 +46,6 @@ def create_application() -> FastAPI:
     app.include_router(customer_discovery.router)
 
     return app
+
 
 app = create_application()
