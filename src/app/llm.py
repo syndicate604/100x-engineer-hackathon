@@ -86,7 +86,7 @@ class CompletionHandler:
             raise Exception(f"Sync completion failed: {str(e)}")
 
 
-class EnhancedLiteLLM:
+class LiteLLMKit:
     """Enhanced LiteLLM client with better organization and error handling"""
 
     # Model mappings with their configurations
