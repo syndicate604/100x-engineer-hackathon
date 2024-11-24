@@ -137,8 +137,63 @@ class CustomerDiscoverer:
             search_results=[search_results_str],
         )
 
+    def search_market_for_year(self, year: int) -> Dict[str, Any]:
+        """Perform targeted market search for a specific year"""
+        market_year_query = f"""
+        Analyze the {self.domain} market for the year {year} with focus on:
+        1. Market size and economic indicators
+        2. Technological innovations
+        3. Key market disruptions
+        4. Regulatory landscape
+        5. Investment and funding trends
+        6. Competitive dynamics
+        """
+        
+        # Perform search using multiple sources
+        try:
+            search_contents = self.exa.search_and_contents(market_year_query)
+            search_results = [
+                search_contents.results[i].text
+                for i in range(len(search_contents.results))
+            ]
+            search_results_str = " \n".join(search_results)
+        except Exception as e:
+            print(f"Exa search failed for {year}: {e}, falling back to Jina")
+            search_results_str = self.jina.search(market_year_query)
+
+        # Analyze and structure the search results
+        analysis_prompt = f"""
+        Comprehensively analyze the search results for the {self.domain} market in {year}.
+        Provide a structured analysis covering:
+        - Market size and growth
+        - Key technological developments
+        - Major market events
+        - Investment trends
+        - Competitive landscape shifts
+        """
+        
+        year_analysis = self.llm.generate(
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=analysis_prompt),
+                    Message(role="system", content=search_results_str),
+                ]
+            )
+        )
+
+        return {
+            "year": year,
+            "analysis": year_analysis,
+            "raw_search_results": search_results
+        }
+
     def compile_comprehensive_report(self):
-        """Compile a comprehensive customer discovery report"""
+        """Compile a comprehensive customer discovery report with year-by-year analysis"""
+        # Perform year-specific market searches
+        years = list(range(2019, 2025))
+        yearly_market_insights = [self.search_market_for_year(year) for year in years]
+
+        # Generate investor sentiment
         investor_sentiment_query = f"""
         Research investor sentiment and future outlook for the {self.domain} domain.
         Include perspectives from top consulting firms like McKinsey, BCG, and Bain.
@@ -149,6 +204,7 @@ class CustomerDiscoverer:
             )
         )
 
+        # Generate ideal customer profile
         ideal_customer_profile_query = f"""
         Based on the market research for the {self.domain} domain, 
         develop a comprehensive ideal customer profile. 
@@ -166,39 +222,26 @@ class CustomerDiscoverer:
             )
         )
 
-        market_trends_query = f"""
-        Perform a comprehensive 5-year market trend analysis for the {self.domain} domain.
-        Provide a detailed report with the following structured insights:
-
-        Historical Market Analysis (2019-2024):
-        1. Year-by-year market size and growth rates
-        2. Key technological milestones
-        3. Significant market disruptions
-        4. Regulatory changes impact
-        5. Investment trends
-
-        Predictive Insights:
-        1. Projected market growth for next 3-5 years
-        2. Emerging technological trends
-        3. Potential market disruptors
-        4. Investment opportunity scoring
-        5. Risk assessment
-
-        Visualization Requirements:
-        1. Market size growth curve
-        2. Technology adoption rate
-        3. Investment flow chart
-        4. Competitive landscape evolution
-        5. Predictive trend lines
-
-        Provide data in a format suitable for creating infographics and analytical dashboards.
-        Include numerical data, percentage changes, and qualitative insights.
+        # Compile comprehensive market trends analysis
+        market_trends_compilation_query = f"""
+        Synthesize the year-by-year market insights for the {self.domain} domain.
+        Create a comprehensive analysis that:
+        1. Identifies overarching trends
+        2. Highlights key inflection points
+        3. Provides predictive insights
+        4. Suggests visualization strategies
         """
+        
         market_trends_insights = self.llm.generate(
-            ChatRequest(messages=[Message(role="user", content=market_trends_query)])
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=market_trends_compilation_query),
+                    Message(role="system", content=str(yearly_market_insights))
+                ]
+            )
         )
 
-        # Parse the market trends insights into a structured MarketTrendAnalysis
+        # Parse the market trends insights
         try:
             parsed_trends = self.llm.generate(
                 ChatRequest(messages=[
@@ -210,7 +253,7 @@ class CustomerDiscoverer:
         except Exception as e:
             # Fallback to a basic structure if parsing fails
             parsed_trends = MarketTrendAnalysis(
-                historical_data={},
+                historical_data={year_insight['year']: year_insight['analysis'] for year_insight in yearly_market_insights},
                 growth_trajectory={},
                 key_inflection_points=[],
                 predictive_insights={},
