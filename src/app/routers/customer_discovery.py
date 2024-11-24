@@ -92,7 +92,6 @@ class CustomerDiscoverer:
         """Perform comprehensive market research for a specific niche"""
         # Use Exa and Jina for diverse internet search
         try:
-            # exa_results = self.exa.search(search_query, num_results=10)
             search_contents = self.exa.search_and_contents(search_query)
             search_results = [
                 search_contents.results[i].text
