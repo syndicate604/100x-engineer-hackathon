@@ -4,6 +4,7 @@ from app.llm import LiteLLMKit
 from app.jina import JinaReader
 from app.exa import ExaAPI
 from app.config import get_settings
+from app.schemas.llm import ChatRequest, Message
 from fastapi import APIRouter
 
 
@@ -52,7 +53,13 @@ class CustomerDiscoverer:
         Generate a comprehensive market research query for understanding customer markets in the {self.domain} domain.
         Focus on identifying key customer segments, workflows, and market characteristics.
         """
-        return self.llm.generate({"messages": [{"role": "user", "content": prompt}]})
+        return self.llm.generate(
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=prompt)
+                ]
+            )
+        )
 
     def identify_market_niches(self, high_level_query: str) -> List[str]:
         """Identify potential market niches within the domain"""
@@ -62,7 +69,11 @@ class CustomerDiscoverer:
         For each niche, provide a brief description and potential market significance.
         """
         niches_response = self.llm.generate(
-            {"messages": [{"role": "user", "content": prompt}]}
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=prompt)
+                ]
+            )
         )
         return [niche.strip() for niche in niches_response.split("\n") if niche.strip()]
 
@@ -73,7 +84,13 @@ class CustomerDiscoverer:
         in the context of the {self.domain} domain. 
         Focus on customer characteristics, market size, and key trends.
         """
-        return self.llm.generate({"messages": [{"role": "user", "content": prompt}]})
+        return self.llm.generate(
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=prompt)
+                ]
+            )
+        )
 
     def search_niche_market(self, niche: str, search_query: str) -> CustomerNiche:
         """Perform comprehensive market research for a specific niche"""
@@ -93,12 +110,12 @@ class CustomerDiscoverer:
         4. Emerging trends
         """
         niche_analysis = self.llm.generate(
-            {
-                "messages": [
-                    {"role": "user", "content": analysis_prompt},
-                    {"role": "system", "content": "\n".join(jina_results)},
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=analysis_prompt),
+                    Message(role="system", content="\n".join(jina_results)),
                 ]
-            }
+            )
         )
 
         return CustomerNiche(
@@ -115,7 +132,11 @@ class CustomerDiscoverer:
         Include perspectives from top consulting firms like McKinsey, BCG, and Bain.
         """
         investor_insights = self.llm.generate(
-            {"messages": [{"role": "user", "content": investor_sentiment_query}]}
+            ChatRequest(
+                messages=[
+                    Message(role="user", content=investor_sentiment_query)
+                ]
+            )
         )
 
         self.comprehensive_report = CustomerDiscoveryReport(
