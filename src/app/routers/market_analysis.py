@@ -19,6 +19,15 @@ class ProblemBreakdown(BaseModel):
     )
 
 
+class MarketTrendVisualization(BaseModel):
+    """Detailed market trend visualization data"""
+    
+    time_series_data: Dict[str, List[float]]
+    growth_rates: Dict[str, float]
+    trend_indicators: Dict[str, str]
+    comparative_analysis: Dict[str, Any]
+    predictive_intervals: Dict[str, Any]
+
 class MarketAnalysisReport(BaseModel):
     """Comprehensive market analysis report"""
 
@@ -26,6 +35,7 @@ class MarketAnalysisReport(BaseModel):
     problem_breakdown: ProblemBreakdown
     search_results: Dict[str, Dict[str, Any]]
     comprehensive_report: str
+    trend_visualization: MarketTrendVisualization
 
 
 class MarketAnalyzer:
@@ -135,6 +145,35 @@ class MarketAnalyzer:
             report = self.analyze_search_results(question, search_results)
             self.reports[question] = report
 
+    def generate_trend_visualization(self) -> MarketTrendVisualization:
+        """Generate comprehensive trend visualization and analysis"""
+        messages = [
+            Message(
+                role="system", 
+                content="""
+                You are an advanced data analyst and trend visualization expert.
+                Analyze the market research results and generate:
+                1. Time series data for key metrics
+                2. Comparative growth rates
+                3. Trend indicators
+                4. Predictive intervals
+                5. Comparative market analysis
+                Focus on extracting actionable insights and visualization-ready data.
+                """),
+            Message(
+                role="user", 
+                content=f"Analyze trends from these reports: {self.reports}"
+            )
+        ]
+
+        request = ChatRequest(messages=messages)
+        trend_data = self.llm.generate(
+            request, 
+            response_format=MarketTrendVisualization
+        )
+
+        return MarketTrendVisualization(**trend_data)
+
     def compile_comprehensive_report(self):
         """Compile individual reports into a comprehensive market analysis"""
         messages = [
@@ -154,6 +193,10 @@ class MarketAnalyzer:
 
         request = ChatRequest(messages=messages)
         self.comprehensive_report = self.llm.generate(request)
+        
+        # Generate trend visualization
+        self.trend_visualization = self.generate_trend_visualization()
+        
         return self.comprehensive_report
 
     def get_report(self) -> MarketAnalysisReport:
@@ -163,6 +206,7 @@ class MarketAnalyzer:
             problem_breakdown=ProblemBreakdown(questions=self.questions),
             search_results=self.search_results,
             comprehensive_report=self.comprehensive_report,
+            trend_visualization=self.trend_visualization,
         )
 
 
