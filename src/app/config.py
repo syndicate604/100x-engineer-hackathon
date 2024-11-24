@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     EXA_API_KEY: str = ""
     JINA_API_KEY: str = ""
     
+    # Database Configuration
+    DATABASE_URL: str = "sqlite:///./market_intelligence.db"
+    
     # LLM Configuration
     DEFAULT_LLM_MODEL: str = "gpt-4o"
     DEFAULT_LLM_TEMPERATURE: float = 0.7
