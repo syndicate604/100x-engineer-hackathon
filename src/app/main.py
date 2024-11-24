@@ -38,10 +38,10 @@ def create_application() -> FastAPI:
     )
 
     # Include routers
-    app.include_router(competitive_intelligence.router)
-    app.include_router(market_expansion.router)
-    app.include_router(product_evolution.router)
-    app.include_router(users.router)
+    # app.include_router(competitive_intelligence.router)
+    # app.include_router(market_expansion.router)
+    # app.include_router(product_evolution.router)
+    # app.include_router(users.router)
     app.include_router(market_analysis.router)
     app.include_router(customer_discovery.router)
 
