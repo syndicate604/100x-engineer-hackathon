@@ -21,12 +21,13 @@ class ProblemBreakdown(BaseModel):
 
 class MarketTrendVisualization(BaseModel):
     """Detailed market trend visualization data"""
-    
+
     time_series_data: Dict[str, List[float]]
     growth_rates: Dict[str, float]
     trend_indicators: Dict[str, str]
     comparative_analysis: Dict[str, Any]
     predictive_intervals: Dict[str, Any]
+
 
 class MarketAnalysisReport(BaseModel):
     """Comprehensive market analysis report"""
@@ -142,7 +143,7 @@ class MarketAnalyzer:
         5. Investment and funding trends
         6. Competitive dynamics
         """
-        
+
         # Perform search using multiple sources
         try:
             search_contents = self.exa.search_and_contents(market_year_query)
@@ -165,7 +166,7 @@ class MarketAnalyzer:
         - Investment trends
         - Competitive landscape shifts
         """
-        
+
         year_analysis = self.llm.generate(
             ChatRequest(
                 messages=[
@@ -179,22 +180,24 @@ class MarketAnalyzer:
             "year": year,
             "question": question,
             "analysis": year_analysis,
-            "raw_search_results": search_results
+            "raw_search_results": search_results,
         }
 
     def perform_analysis(self):
         """Perform comprehensive market analysis with year-specific searches"""
         years = list(range(2019, 2025))
-        
+
         for question in self.questions:
             # Perform year-specific searches
             yearly_insights = [
                 self.search_market_for_year(year, question) for year in years
             ]
 
-            self.search_results[question] = {
-                "yearly_insights": yearly_insights
-            }
+            self.search_results[question] = {"yearly_insights": yearly_insights}
+
+            year_insights_analysis = [
+                insight["analysis"] for insight in yearly_insights
+            ]
 
             # Compile a comprehensive report for the question
             compilation_prompt = f"""
@@ -210,7 +213,7 @@ class MarketAnalyzer:
                 ChatRequest(
                     messages=[
                         Message(role="user", content=compilation_prompt),
-                        Message(role="system", content=str(yearly_insights))
+                        Message(role="system", content=str(year_insights_analysis)),
                     ]
                 )
             )
@@ -221,7 +224,7 @@ class MarketAnalyzer:
         """Generate comprehensive trend visualization and analysis"""
         messages = [
             Message(
-                role="system", 
+                role="system",
                 content="""
                 You are an advanced data analyst and trend visualization expert.
                 Analyze the market research results and generate:
@@ -231,17 +234,17 @@ class MarketAnalyzer:
                 4. Predictive intervals
                 5. Comparative market analysis
                 Focus on extracting actionable insights and visualization-ready data.
-                """),
+                """,
+            ),
             Message(
-                role="user", 
-                content=f"Analyze trends from these yearly market insights: {self.search_results}"
-            )
+                role="user",
+                content=f"Analyze trends from these yearly market insights: {self.search_results}",
+            ),
         ]
 
         request = ChatRequest(messages=messages)
         trend_data = self.llm.generate(
-            request, 
-            response_format=MarketTrendVisualization
+            request, response_format=MarketTrendVisualization
         )
 
         return MarketTrendVisualization(**trend_data)
@@ -265,10 +268,10 @@ class MarketAnalyzer:
 
         request = ChatRequest(messages=messages)
         self.comprehensive_report = self.llm.generate(request)
-        
+
         # Generate trend visualization
         self.trend_visualization = self.generate_trend_visualization()
-        
+
         return self.comprehensive_report
 
     def get_report(self) -> MarketAnalysisReport:
