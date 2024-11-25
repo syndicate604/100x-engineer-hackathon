@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -10,13 +10,13 @@ from app.routers.market_analysis import MarketAnalysisReport
 from app.routers.market_expansion import MarketExpansionStrategy
 from app.llm import LiteLLMKit
 from app.schemas.llm import ChatRequest, Message
-from app.schemas.visualization import TrendVisualizationResponse
 
 router = APIRouter(prefix="/product-evolution", tags=["product_evolution"])
 
+
 class ProductEvolutionPhase(BaseModel):
     """Detailed product evolution phase"""
-    
+
     phase_number: int
     name: str
     description: str
@@ -28,9 +28,10 @@ class ProductEvolutionPhase(BaseModel):
     estimated_timeline: Dict[str, str]
     risk_mitigation_strategies: List[str]
 
+
 class UserAdoptionTrend(BaseModel):
     """User adoption trend visualization data"""
-    
+
     x_axis_labels: List[str]
     y_axis_labels: List[str]
     data: List[List[float]]
@@ -39,9 +40,10 @@ class UserAdoptionTrend(BaseModel):
     reasoning: str
     key_insights: List[str]
 
+
 class ProductEvolutionStrategy(BaseModel):
     """Comprehensive product evolution roadmap"""
-    
+
     primary_domain: str
     phases: List[ProductEvolutionPhase]
     overall_vision: str
@@ -49,52 +51,59 @@ class ProductEvolutionStrategy(BaseModel):
     competitive_differentiation: Dict[str, str]
     user_adoption_trend: Optional[UserAdoptionTrend] = None
 
+
 class ProductEvolver:
     """Advanced product evolution strategy generator"""
-    
+
     def __init__(
-        self, 
+        self,
         customer_discovery: CustomerDiscoveryReport,
         market_analysis: MarketAnalysisReport,
         market_expansion: MarketExpansionStrategy,
-        llm_model: str = "gpt-4o", 
-        temperature: float = 0.7
+        llm_model: str = "gpt-4o",
+        temperature: float = 0.7,
     ):
         """Initialize Product Evolver with comprehensive market insights"""
         self.llm = LiteLLMKit(model_name=llm_model, temperature=temperature)
-        
+
         self.customer_discovery = customer_discovery
         self.market_analysis = market_analysis
         self.market_expansion = market_expansion
-        
+
         self.primary_domain = customer_discovery.primary_domain
         self.evolution_strategy: Optional[ProductEvolutionStrategy] = None
-    
+
     def _extract_key_insights(self):
         """Extract most valuable and clear data points from reports"""
         # Customer Discovery Insights
-        key_niches = [niche for niche in self.customer_discovery.niches[:3] if niche.market_size > 0]
-        ideal_customer_profile = self.customer_discovery.ideal_customer_profile.get('insights', '')
-        
+        key_niches = [
+            niche
+            for niche in self.customer_discovery.niches[:3]
+            if niche.market_size > 0
+        ]
+        ideal_customer_profile = self.customer_discovery.ideal_customer_profile.get(
+            "insights", ""
+        )
+
         # Market Analysis Insights
         market_trends = self.market_analysis.comprehensive_report
-        
+
         # Market Expansion Insights
         expansion_domains = self.market_expansion.expansion_domains
         strategic_rationale = self.market_expansion.strategic_rationale
-        
+
         return {
-            'key_niches': key_niches,
-            'ideal_customer_profile': ideal_customer_profile,
-            'market_trends': market_trends,
-            'expansion_domains': expansion_domains,
-            'strategic_rationale': strategic_rationale
+            "key_niches": key_niches,
+            "ideal_customer_profile": ideal_customer_profile,
+            "market_trends": market_trends,
+            "expansion_domains": expansion_domains,
+            "strategic_rationale": strategic_rationale,
         }
-    
+
     def generate_product_evolution_strategy(self) -> ProductEvolutionStrategy:
         """Generate a comprehensive product evolution strategy"""
         insights = self._extract_key_insights()
-        
+
         evolution_strategy_prompt = f"""
         Design a multi-phase product evolution strategy for the {self.primary_domain} domain.
         
@@ -120,26 +129,29 @@ class ProductEvolver:
         - Estimated timeline
         - Risk mitigation strategies
         """
-        
+
         messages = [
             Message(
-                role="system", 
-                content="You are a strategic product evolution expert. Design a roadmap that balances innovation, market needs, and customer value."
+                role="system",
+                content="You are a strategic product evolution expert. Design a roadmap that balances innovation, market needs, and customer value.",
             ),
-            Message(role="user", content=evolution_strategy_prompt)
+            Message(role="user", content=evolution_strategy_prompt),
         ]
-        
+
         request = ChatRequest(messages=messages)
         evolution_strategy_response = self.llm.generate(
-            request, 
-            response_format=ProductEvolutionStrategy
+            request, response_format=ProductEvolutionStrategy
         )
-        
-        self.evolution_strategy = ProductEvolutionStrategy(**evolution_strategy_response)
-        
+
+        self.evolution_strategy = ProductEvolutionStrategy(
+            **evolution_strategy_response
+        )
+
         # Generate user adoption trend visualization
-        self.evolution_strategy.user_adoption_trend = self._generate_user_adoption_trend()
-        
+        self.evolution_strategy.user_adoption_trend = (
+            self._generate_user_adoption_trend()
+        )
+
         return self.evolution_strategy
 
     def _generate_user_adoption_trend(self) -> UserAdoptionTrend:
@@ -157,24 +169,25 @@ class ProductEvolver:
         3. Show realistic user growth patterns
         4. Include reasoning and key insights
         """
-        
+
         messages = [
             Message(
-                role="system", 
-                content="You are an expert in user adoption trend analysis. Generate realistic, strategic user growth data."
+                role="system",
+                content="You are an expert in user adoption trend analysis. Generate realistic, strategic user growth data.",
             ),
-            Message(role="user", content=user_adoption_query)
+            Message(role="user", content=user_adoption_query),
         ]
-        
+
         request = ChatRequest(messages=messages)
         user_adoption_response = self.llm.generate(
-            request, 
-            response_format=UserAdoptionTrend
+            request, response_format=UserAdoptionTrend
         )
-        
+
         return UserAdoptionTrend(**user_adoption_response)
 
-    def visualize_user_adoption_trend(self, trend_data: UserAdoptionTrend) -> TrendVisualizationResponse:
+    def visualize_user_adoption_trend(
+        self, trend_data: UserAdoptionTrend
+    ) -> dict[str, str | list[str]]:
         """
         Visualize user adoption trend data using matplotlib
 
@@ -205,42 +218,38 @@ class ProductEvolver:
         buffer.seek(0)
         image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
         plt.close()
-        
+
         return {
             "img": image_base64,
             "reason": trend_data.reasoning,
             "insights": trend_data.key_insights,
         }
 
+
 @router.post("/evolve")
 def product_evolution_endpoint(
     customer_discovery: CustomerDiscoveryReport,
     market_analysis: MarketAnalysisReport,
-    market_expansion: MarketExpansionStrategy
+    market_expansion: MarketExpansionStrategy,
 ):
     """FastAPI endpoint for product evolution strategy generation"""
-    evolver = ProductEvolver(
-        customer_discovery, 
-        market_analysis, 
-        market_expansion
-    )
+    evolver = ProductEvolver(customer_discovery, market_analysis, market_expansion)
     return evolver.generate_product_evolution_strategy()
+
 
 @router.post("/user-adoption-trend")
 def user_adoption_trend_endpoint(
     customer_discovery: CustomerDiscoveryReport,
     market_analysis: MarketAnalysisReport,
-    market_expansion: MarketExpansionStrategy
+    market_expansion: MarketExpansionStrategy,
 ):
     """FastAPI endpoint for user adoption trend visualization"""
-    evolver = ProductEvolver(
-        customer_discovery, 
-        market_analysis, 
-        market_expansion
-    )
+    evolver = ProductEvolver(customer_discovery, market_analysis, market_expansion)
     evolution_strategy = evolver.generate_product_evolution_strategy()
-    
+
     if evolution_strategy.user_adoption_trend:
-        return evolver.visualize_user_adoption_trend(evolution_strategy.user_adoption_trend)
-    
+        return evolver.visualize_user_adoption_trend(
+            evolution_strategy.user_adoption_trend
+        )
+
     return {"error": "User adoption trend not available"}

@@ -1,5 +1,6 @@
 from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
+
 from pydantic import BaseModel, Field
 
 from app.routers.customer_discovery import CustomerDiscoverer, CustomerDiscoveryReport
@@ -12,43 +13,38 @@ from app.config import get_settings
 
 router = APIRouter(prefix="/market-expansion", tags=["market_expansion"])
 
+
 class MarketExpansionStrategy(BaseModel):
     """Comprehensive market expansion strategy"""
-    
+
     primary_domain: str
     expansion_domains: List[str] = Field(
-        ..., 
-        description="Potential adjacent or complementary market domains for expansion"
+        ...,
+        description="Potential adjacent or complementary market domains for expansion",
     )
     strategic_rationale: Dict[str, str] = Field(
-        ..., 
-        description="Detailed reasoning for each potential expansion domain"
+        ..., description="Detailed reasoning for each potential expansion domain"
     )
     competitive_landscape: Dict[str, Any] = Field(
-        ..., 
-        description="Analysis of competitive dynamics in potential expansion domains"
+        ...,
+        description="Analysis of competitive dynamics in potential expansion domains",
     )
     investment_requirements: Dict[str, float] = Field(
-        ..., 
-        description="Estimated investment needs for each expansion domain"
+        ..., description="Estimated investment needs for each expansion domain"
     )
     risk_assessment: Dict[str, float] = Field(
-        ..., 
-        description="Risk levels associated with each expansion domain"
+        ..., description="Risk levels associated with each expansion domain"
     )
     potential_synergies: List[str] = Field(
-        ..., 
-        description="Potential synergies between current and expansion domains"
+        ..., description="Potential synergies between current and expansion domains"
     )
+
 
 class MarketExpander:
     """Advanced market expansion analysis tool"""
 
     def __init__(
-        self, 
-        primary_domain: str, 
-        llm_model: str = "gpt-4o", 
-        temperature: float = 0.7
+        self, primary_domain: str, llm_model: str = "gpt-4o", temperature: float = 0.7
     ):
         """Initialize Market Expander with LLM and external search APIs"""
         self.settings = get_settings()
@@ -65,6 +61,7 @@ class MarketExpander:
         """Perform comprehensive customer discovery for primary domain"""
         discoverer = CustomerDiscoverer(self.primary_domain)
         self.customer_discovery_report = discoverer.discover()
+        assert self.customer_discovery_report is not None
         return self.customer_discovery_report
 
     def analyze_primary_domain(self) -> MarketAnalysisReport:
@@ -73,7 +70,7 @@ class MarketExpander:
         analyzer.breakdown_problem(self.primary_domain)
         analyzer.perform_analysis()
         analyzer.compile_comprehensive_report()
-        
+
         self.market_analysis_report = analyzer.get_report()
         return self.market_analysis_report
 
@@ -101,36 +98,29 @@ class MarketExpander:
 
         messages = [
             Message(
-                role="system", 
-                content="You are an expert market strategist specializing in business expansion."
+                role="system",
+                content="You are an expert market strategist specializing in business expansion.",
             ),
-            Message(
-                role="user", 
-                content=expansion_query
-            ),
-            Message(
-                role="system", 
-                content=str(self.customer_discovery_report)
-            ),
-            Message(
-                role="system", 
-                content=str(self.market_analysis_report)
-            )
+            Message(role="user", content=expansion_query),
+            Message(role="system", content=str(self.customer_discovery_report)),
+            Message(role="system", content=str(self.market_analysis_report)),
         ]
 
         request = ChatRequest(messages=messages)
         expansion_domains_response = self.llm.generate(request)
-        
+
         # Parse the response into a list of domains
         expansion_domains = [
-            domain.strip() 
-            for domain in expansion_domains_response.split('\n') 
+            domain.strip()
+            for domain in expansion_domains_response.split("\n")
             if domain.strip()
         ]
 
         return expansion_domains[:7]  # Limit to top 7 domains
 
-    def analyze_expansion_domains(self, expansion_domains: List[str]) -> MarketExpansionStrategy:
+    def analyze_expansion_domains(
+        self, expansion_domains: List[str]
+    ) -> MarketExpansionStrategy:
         """Perform comprehensive analysis of potential expansion domains"""
         strategic_rationale = {}
         competitive_landscape = {}
@@ -142,7 +132,7 @@ class MarketExpander:
             # Perform targeted search and analysis for each domain
             try:
                 search_query = f"Market expansion opportunities in {domain} related to {self.primary_domain}"
-                
+
                 # Use Exa and Jina for comprehensive search
                 try:
                     search_contents = self.exa.search_and_contents(search_query)
@@ -168,8 +158,11 @@ class MarketExpander:
                 """
 
                 messages = [
-                    Message(role="system", content="You are an expert market expansion strategist."),
-                    Message(role="user", content=expansion_analysis_prompt)
+                    Message(
+                        role="system",
+                        content="You are an expert market expansion strategist.",
+                    ),
+                    Message(role="user", content=expansion_analysis_prompt),
                 ]
 
                 request = ChatRequest(messages=messages)
@@ -180,7 +173,9 @@ class MarketExpander:
                 competitive_landscape[domain] = f"Competitive analysis for {domain}"
                 investment_requirements[domain] = 1000000.0  # Default placeholder
                 risk_assessment[domain] = 0.5  # Default moderate risk
-                potential_synergies.append(f"Potential synergy between {self.primary_domain} and {domain}")
+                potential_synergies.append(
+                    f"Potential synergy between {self.primary_domain} and {domain}"
+                )
 
             except Exception as e:
                 print(f"Error analyzing expansion domain {domain}: {e}")
@@ -192,7 +187,7 @@ class MarketExpander:
             competitive_landscape=competitive_landscape,
             investment_requirements=investment_requirements,
             risk_assessment=risk_assessment,
-            potential_synergies=potential_synergies
+            potential_synergies=potential_synergies,
         )
 
         return self.expansion_strategy
@@ -200,7 +195,7 @@ class MarketExpander:
     def expand_market(self) -> MarketExpansionStrategy:
         """Execute full market expansion workflow"""
         print(f"Initiating market expansion analysis for domain: {self.primary_domain}")
-        
+
         # Discover and analyze primary domain
         self.discover_primary_domain()
         self.analyze_primary_domain()
@@ -211,8 +206,9 @@ class MarketExpander:
 
         # Analyze expansion domains
         expansion_strategy = self.analyze_expansion_domains(expansion_domains)
-        
+
         return expansion_strategy
+
 
 @router.post("/expand")
 def market_expansion_endpoint(domain: str):

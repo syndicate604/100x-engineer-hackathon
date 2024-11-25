@@ -24,6 +24,7 @@ class JinaReader:
         headers = {}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
+            headers["X-Retain-Images"] = "none"
 
         full_url = f"{self.base_search_url}{query}"
         response = requests.get(full_url, headers=headers)
