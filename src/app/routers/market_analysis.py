@@ -11,7 +11,10 @@ from app.jina import JinaReader
 from app.exa import ExaAPI
 from app.schemas.llm import ChatRequest, Message
 from app.config import get_settings
-from app.schemas.visualization import TrendVisualizationResponse, DetailedTrendVisualization
+from app.schemas.visualization import (
+    TrendVisualizationResponse,
+    DetailedTrendVisualization,
+)
 
 router = APIRouter(prefix="/market-analysis", tags=["market_analysis"])
 
@@ -115,13 +118,14 @@ class MarketAnalyzer:
         """Search internet with fallback mechanism"""
         try:
             # Try Exa first
-            exa_results = self.exa.search(search_query)
-            return [result.text for result in exa_results.results]
+            return [self.jina.search(search_query)]
+
         except Exception as e:
             if fallback:
                 try:
                     # Fallback to Jina
-                    return [self.jina.search(search_query)]
+                    exa_results = self.exa.search_and_contents(search_query)
+                    return [result.text for result in exa_results.results]
                 except Exception:
                     return []
             return []
@@ -434,29 +438,4 @@ async def visualize_market_trend(query: str):
 
     visualization = analyzer.visualize_trend(trend_data)
 
-    return TrendVisualizationResponse(**visualization)
-
-@router.post("/detailed-trend-visualization", response_model=DetailedTrendVisualization)
-async def detailed_market_trend_visualization(query: str):
-    """Endpoint for detailed market trend visualization"""
-    analyzer = MarketAnalyzer()
-    analyzer.breakdown_problem(query)
-    trend_data = await analyzer.generate_trend_visualization()
-
-    visualization = analyzer.visualize_trend(trend_data)
-
-    # Add metadata and confidence score
-    from datetime import datetime
-    detailed_visualization = {
-        **visualization,
-        "metadata": {
-            "title": f"Market Trend Analysis: {query}",
-            "x_axis_label": trend_data.x_axis_name,
-            "y_axis_label": trend_data.y_axis_name,
-            "metrics": trend_data.y_axis_labels,
-            "date_generated": datetime.now().isoformat()
-        },
-        "confidence_score": 0.85  # Example confidence score
-    }
-
-    return DetailedTrendVisualization(**detailed_visualization)
+    return visualization
