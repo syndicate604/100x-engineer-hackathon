@@ -16,12 +16,13 @@ flowchart TD
     J --> K
     K --> L[End: Market Insights Ready]
 
-    classDef start fill:#f9f,stroke:#333,stroke-width:4px;
-    classDef process fill:#bbf,stroke:#333,stroke-width:2px;
-    classDef decision fill:#ffd,stroke:#333,stroke-width:2px;
-    classDef end fill:#bfb,stroke:#333,stroke-width:4px;
+    classDef start fill:#f9f,stroke:#333,stroke-width:4px
+    classDef process fill:#bbf,stroke:#333,stroke-width:2px
+    classDef decision fill:#ffd,stroke:#333,stroke-width:2px
+    classDef endNode fill:#bfb,stroke:#333,stroke-width:4px
 
-    class A,L start;
-    class B,C,E,F,G,H,I,J process;
-    class D decision;
+    class A,L start
+    class B,C,E,F,G,H,I,J process
+    class D decision
+    class K,L endNode
 ```
