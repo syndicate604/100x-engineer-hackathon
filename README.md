@@ -6,7 +6,22 @@ This project is an advanced AI-driven market intelligence platform designed to h
 
 ## System Architecture 
 
-•⁠ ⁠[System Workflow](docs/workflow_visualizer/system_architecture.md)
+```mermaid
+flowchart TD
+    A[User Query] --> B{Intelligent Processing}
+    B --> |Market Analysis| C[Insights Generation]
+    B --> |Customer Discovery| C
+    B --> |Market Expansion| C
+    B --> |Product Evolution| C
+    
+    C --> D[AI-Powered Strategy]
+    D --> E[Actionable Recommendations]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:4px
+    style E fill:#bbf,stroke:#333,stroke-width:4px
+```
+
+•⁠ ⁠[Detailed System Workflow](docs/workflow_visualizer/system_architecture.md)
 
 
 ## Key Features
