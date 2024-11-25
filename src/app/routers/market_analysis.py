@@ -21,12 +21,14 @@ class ProblemBreakdown(BaseModel):
 
 class MarketTrendVisualization(BaseModel):
     """Detailed market trend visualization data"""
-
-    time_series_data: Dict[str, List[float]]
-    growth_rates: Dict[str, float]
-    trend_indicators: Dict[str, str]
-    comparative_analysis: Dict[str, Any]
-    predictive_intervals: Dict[str, Any]
+    x_axis_labels: List[str] = Field(
+        ..., description="Labels for the x-axis (time period)"
+    )
+    y_axis_labels: List[str] = Field(
+        ..., description="Labels for the y-axis (metrics)"
+    )
+    x_axis_name: str = Field(..., description="Name of the x-axis")
+    y_axis_name: str = Field(..., description="Name of the y-axis")
 
 
 class MarketAnalysisReport(BaseModel):
@@ -59,7 +61,7 @@ class MarketAnalyzer:
                 role="system",
                 content="""
             You are an expert problem decomposition assistant. 
-            Break down complex queries into 5-10 distinct, focused sub-problems.
+            Break down complex queries into 5 distinct, focused sub-problems.
             Ensure each sub-problem is specific, actionable, and provides a different perspective.
             """,
             ),
@@ -224,7 +226,7 @@ class MarketAnalyzer:
             self.reports[self.original_query] = original_query_report
 
         # Standard internet research for remaining questions
-        remaining_questions = self.questions[1:4]  # Limit to prevent excessive AI calls
+        remaining_questions = self.questions[0:5]  # Limit to prevent excessive AI calls
         for question in remaining_questions:
             # Generate search query
             search_query = self.generate_search_query(question)
