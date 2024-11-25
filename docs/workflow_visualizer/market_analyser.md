@@ -1,21 +1,30 @@
 flowchart TD
-    Start --> GenerateHighLevelQuery["generate_high_level_query()"]
-    GenerateHighLevelQuery --> IdentifyMarketNiches["identify_market_niches(high_level_query)"]
-    IdentifyMarketNiches --> LoopCheck{"More Niches to Process?"}
+    Start[Start Market Analysis] --> GenerateHighLevelQuery["Generate High-Level Query"]
+    GenerateHighLevelQuery --> IdentifyMarketNiches["Identify Market Niches"]
+    IdentifyMarketNiches --> LoopCheck{"More Niches to Analyze?"}
 
     LoopCheck -->|Yes| ProcessNiche
-    LoopCheck -->|No| CompileComprehensiveReport["compile_comprehensive_report()"]
+    LoopCheck -->|No| CompileReport["Compile Comprehensive Report"]
 
-    subgraph ProcessNiche[Process Each Niche (up to 10)]
-        GenerateNicheSearchQuery["generate_niche_search_query(niche)"] --> SearchNicheMarket["search_niche_market(niche, search_query)"]
-        SearchNicheMarket --> CollectNicheDetails["Collect Niche Details"]
-        CollectNicheDetails --> AddToNichesList["Add Niche to Niches List"]
-        AddToNichesList --> LoopCheck
+    subgraph ProcessNiche[Analyze Market Niches]
+        GenerateSearchQuery["Generate Niche Search Query"] --> SearchMarket["Perform Market Search"]
+        SearchMarket --> AnalyzeNiche["Analyze Niche Insights"]
+        AnalyzeNiche --> UpdateNichesList["Update Market Niches List"]
+        UpdateNichesList --> LoopCheck
     end
 
-    CompileComprehensiveReport --> GenerateInvestorSentiment["Generate Investor Sentiment"]
-    GenerateInvestorSentiment --> GenerateIdealCustomerProfile["Generate Ideal Customer Profile"]
-    GenerateIdealCustomerProfile --> CreateReport["Create CustomerDiscoveryReport"]
-    CreateReport --> ReturnReport["Return Comprehensive Report"]
+    CompileReport --> GenerateTrends["Generate Market Trends"]
+    GenerateTrends --> VisualizeData["Visualize Market Data"]
+    VisualizeData --> GenerateInsights["Generate Strategic Insights"]
+    GenerateInsights --> CreateMarketReport["Create Market Analysis Report"]
+    CreateMarketReport --> ReturnReport["Return Comprehensive Market Report"]
 
-    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef start fill:#4a90e2,stroke:#2c3e50,stroke-width:4px;
+    classDef process fill:#3498db,stroke:#2c3e50,stroke-width:2px;
+    classDef decision fill:#2ecc71,stroke:#2c3e50,stroke-width:2px;
+    classDef end fill:#e74c3c,stroke:#2c3e50,stroke-width:4px;
+
+    class Start start;
+    class GenerateHighLevelQuery,IdentifyMarketNiches,GenerateSearchQuery,SearchMarket,AnalyzeNiche,UpdateNichesList process;
+    class LoopCheck decision;
+    class ReturnReport end;
