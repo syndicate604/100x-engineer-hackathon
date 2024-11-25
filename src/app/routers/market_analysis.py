@@ -246,34 +246,82 @@ class MarketAnalyzer:
 
             print(f"Processed question: {question}")
 
-    def generate_trend_visualization(self) -> MarketTrendVisualization:
-        """Generate comprehensive trend visualization and analysis"""
+    async def generate_trend_visualization(self) -> MarketTrendVisualization:
+        """Generate comprehensive trend visualization and analysis using async processing"""
+        years = list(range(2019, 2025))
+        
+        async def analyze_year_trend(year: int) -> Dict[str, Any]:
+            """Async function to analyze trend for a specific year"""
+            trend_query = f"""
+            Analyze market trends for the year {year} focusing on:
+            1. Key performance indicators
+            2. Growth metrics
+            3. Technological advancements
+            4. Market sentiment
+            5. Predictive insights
+            """
+            
+            messages = [
+                Message(
+                    role="system", 
+                    content="You are an expert trend analyst. Provide concise, data-driven insights."
+                ),
+                Message(
+                    role="user", 
+                    content=trend_query
+                )
+            ]
+            
+            request = ChatRequest(messages=messages)
+            return {
+                "year": year,
+                "trend_analysis": await self.llm.agenerate(request)
+            }
+        
+        # Use asyncio to process year trends concurrently
+        import asyncio
+        year_trends = await asyncio.gather(*[analyze_year_trend(year) for year in years])
+        
+        # Prepare visualization data
+        x_axis_labels = [str(trend['year']) for trend in year_trends]
+        y_axis_labels = ['Growth', 'Innovation', 'Market Sentiment']
+        
+        # Generate comprehensive trend visualization
+        trend_visualization_query = f"""
+        Based on these yearly trend analyses: {year_trends}
+        Create a comprehensive trend visualization that:
+        1. Identifies key trend lines
+        2. Highlights year-over-year changes
+        3. Provides predictive insights
+        4. Suggests strategic implications
+        """
+        
         messages = [
             Message(
-                role="system",
-                content="""
-                You are an advanced data analyst and trend visualization expert.
-                Analyze the market research results and generate:
-                1. Time series data for key metrics
-                2. Comparative growth rates
-                3. Trend indicators
-                4. Predictive intervals
-                5. Comparative market analysis
-                Focus on extracting actionable insights and visualization-ready data.
-                """,
+                role="system", 
+                content="You are an advanced data visualization expert. Generate structured trend data."
             ),
             Message(
-                role="user",
-                content=f"Analyze trends from these yearly market insights: {self.search_results}",
-            ),
+                role="user", 
+                content=trend_visualization_query
+            )
         ]
-
+        
         request = ChatRequest(messages=messages)
         trend_data = self.llm.generate(
-            request, response_format=MarketTrendVisualization
+            request, 
+            response_format=MarketTrendVisualization
         )
-
-        return MarketTrendVisualization(**trend_data)
+        
+        trend_visualization = MarketTrendVisualization(
+            x_axis_labels=x_axis_labels,
+            y_axis_labels=y_axis_labels,
+            x_axis_name="Year",
+            y_axis_name="Market Trends",
+            **trend_data
+        )
+        
+        return trend_visualization
 
     def compile_comprehensive_report(self):
         """Compile individual reports into a comprehensive market analysis"""
