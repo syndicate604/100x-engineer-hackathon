@@ -276,8 +276,6 @@ class MarketAnalyzer:
             return {"year": year, "trend_analysis": await self.llm.agenerate(request)}
 
         # Use asyncio to process year trends concurrently
-        import asyncio
-
         year_trends = await asyncio.gather(
             *[analyze_year_trend(year) for year in years]
         )
@@ -290,12 +288,13 @@ class MarketAnalyzer:
         2. Highlights year-over-year changes
         3. Provides predictive insights
         4. Suggests strategic implications
+        Provide numerical data for visualization
         """
 
         messages = [
             Message(
                 role="system",
-                content="You are an advanced data visualization expert. Generate structured trend data.",
+                content="You are an advanced data visualization expert. Generate structured trend data with numerical values.",
             ),
             Message(role="user", content=trend_visualization_query),
         ]
@@ -308,6 +307,53 @@ class MarketAnalyzer:
         trend_visualization = MarketTrendVisualization(**trend_data)
 
         return trend_visualization
+
+    def visualize_trend(self, trend_data: MarketTrendVisualization, output_format: str = 'base64') -> Optional[str]:
+        """
+        Visualize market trend data using matplotlib
+        
+        Args:
+            trend_data (MarketTrendVisualization): Trend visualization data
+            output_format (str, optional): Output format. Defaults to 'base64'.
+        
+        Returns:
+            Optional[str]: Visualization in specified format
+        """
+        plt.figure(figsize=(12, 6))
+        
+        # Plot each trend line
+        for i, y_label in enumerate(trend_data.y_axis_labels):
+            plt.plot(
+                trend_data.x_axis_labels, 
+                trend_data.data[i], 
+                label=y_label, 
+                marker='o'
+            )
+        
+        plt.title(f"Market Trend Analysis: {trend_data.y_axis_name}")
+        plt.xlabel(trend_data.x_axis_name)
+        plt.ylabel(trend_data.y_axis_name)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        
+        # Return visualization based on output format
+        if output_format == 'base64':
+            # Save plot to a base64 encoded image
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            plt.close()
+            return image_base64
+        elif output_format == 'file':
+            # Save plot to a file
+            plt.savefig('market_trend.png')
+            plt.close()
+            return 'market_trend.png'
+        else:
+            # Return matplotlib figure for further manipulation
+            return plt
 
     def compile_comprehensive_report(self):
         """Compile individual reports into a comprehensive market analysis"""
@@ -350,3 +396,22 @@ async def market_analysis(query: str):
     analyzer.compile_comprehensive_report()
 
     return analyzer.get_report()
+
+@router.post("/visualize-trend")
+async def visualize_market_trend(query: str, output_format: str = 'base64'):
+    """Endpoint for market trend visualization"""
+    analyzer = MarketAnalyzer()
+    analyzer.breakdown_problem(query)
+    trend_data = await analyzer.generate_trend_visualization()
+    
+    visualization = analyzer.visualize_trend(trend_data, output_format)
+    
+    if output_format == 'base64':
+        return {"trend_visualization": visualization}
+    elif output_format == 'file':
+        return Response(
+            content=open(visualization, 'rb').read(), 
+            media_type='image/png'
+        )
+    else:
+        return {"message": "Unsupported output format"}
