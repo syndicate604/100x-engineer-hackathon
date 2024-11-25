@@ -440,9 +440,6 @@ class MarketInsightUI:
 
         # Add a button to launch chat UI
         if st.button("💬 Chat with Market Insights"):
-            import streamlit as st
-            from ui.chat_ui import MarketInsightsChatUI
-            
             chat_ui = MarketInsightsChatUI(st.session_state.reports)
             chat_ui.run()
 
@@ -450,16 +447,6 @@ class MarketInsightUI:
 def main():
     ui = MarketInsightUI()
     ui.run()
-
-
-def chat_main():
-    from ui.chat_ui import MarketInsightsChatUI
-    
-    if hasattr(st.session_state, 'reports'):
-        chat_ui = MarketInsightsChatUI(st.session_state.reports)
-        chat_ui.run()
-    else:
-        st.error("No market insights reports found. Please generate reports first.")
 
 
 if __name__ == "__main__":
