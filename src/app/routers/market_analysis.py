@@ -1,6 +1,10 @@
-from typing import List, Dict, Any
+import asyncio
+import matplotlib.pyplot as plt
+import io
+import base64
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 
 from app.llm import LiteLLMKit
 from app.jina import JinaReader
