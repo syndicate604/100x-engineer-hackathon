@@ -239,7 +239,7 @@ class MarketInsightUI:
             "customer_discovery": self.customer_discovery_stage,
             "market_analysis": self.market_analysis_stage,
             "market_expansion": self.market_expansion_stage,
-            "product_evolution": self.product_evolution_stage,
+            # "product_evolution": self.product_evolution_stage,
             "final_report": self.final_report_stage,
         }
 
@@ -250,7 +250,7 @@ class MarketInsightUI:
     def _advance_workflow(self, next_stage):
         """Advance to the next workflow stage"""
         st.session_state.workflow_stage = next_stage
-        st.experimental_rerun()
+        st.rerun()
 
     def customer_onboarding(self):
         """Initial customer onboarding and problem statement collection"""
