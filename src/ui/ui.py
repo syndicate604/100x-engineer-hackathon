@@ -1,3 +1,10 @@
+import sys
+import os
+
+CUR_DIR = os.getcwd()
+CUR_DIR = CUR_DIR.replace("\\", "/").replace("/exp", "")
+sys.path.append(CUR_DIR)
+
 import os
 import json
 import tempfile
@@ -18,7 +25,7 @@ from app.routers.market_analysis import MarketAnalyzer, MarketAnalysisReport
 from app.routers.market_expansion import MarketExpander, MarketExpansionStrategy
 from app.llm import LiteLLMKit
 
-from ui.chat_ui import MarketInsightsChatUI
+from chat_ui import MarketInsightsChatUI
 
 
 class PDFReportGenerator:

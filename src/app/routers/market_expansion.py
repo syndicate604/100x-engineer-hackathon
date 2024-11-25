@@ -44,11 +44,11 @@ class MarketExpander:
     """Advanced market expansion analysis tool"""
 
     def __init__(
-        self, 
-        customer_discovery_report: CustomerDiscoveryReport, 
-        market_analysis_report: MarketAnalysisReport, 
-        llm_model: str = "gpt-4o", 
-        temperature: float = 0.7
+        self,
+        customer_discovery_report: CustomerDiscoveryReport,
+        market_analysis_report: MarketAnalysisReport,
+        llm_model: str = "gpt-4o",
+        temperature: float = 0.7,
     ):
         """Initialize Market Expander with pre-generated reports"""
         self.settings = get_settings()
@@ -63,9 +63,6 @@ class MarketExpander:
 
     def generate_expansion_domains(self) -> List[str]:
         """Generate potential market expansion domains"""
-        if not self.customer_discovery_report or not self.market_analysis_report:
-            self.discover_primary_domain()
-            self.analyze_primary_domain()
 
         expansion_query = f"""
         Based on the market analysis and customer discovery for the {self.primary_domain} domain, 
@@ -89,8 +86,16 @@ class MarketExpander:
                 content="You are an expert market strategist specializing in business expansion.",
             ),
             Message(role="user", content=expansion_query),
-            Message(role="system", content=str(self.customer_discovery_report)),
-            Message(role="system", content=str(self.market_analysis_report)),
+            Message(
+                role="assistant",
+                content="Customer Discovery Report:\n\n"
+                + str(self.customer_discovery_report),
+            ),
+            Message(
+                role="assistant",
+                content="Market Analysis Report:\n\n"
+                + str(self.market_analysis_report.comprehensive_report)+'\n\n'+str(self.market_analysis_report.problem_breakdown),
+            ),
         ]
 
         request = ChatRequest(messages=messages)
@@ -191,6 +196,7 @@ class MarketExpander:
         expansion_strategy = self.analyze_expansion_domains(expansion_domains)
 
         return expansion_strategy
+
 
 
 @router.post("/expand")

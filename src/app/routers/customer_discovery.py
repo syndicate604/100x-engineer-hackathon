@@ -20,15 +20,6 @@ class CustomerNiche(BaseModel):
     key_characteristics: List[str] = []
 
 
-class MarketTrendAnalysis(BaseModel):
-    """Detailed market trend analysis"""
-    
-    historical_data: Dict[str, Any]
-    growth_trajectory: Dict[str, float]
-    key_inflection_points: List[Dict[str, Any]]
-    predictive_insights: Dict[str, Any]
-    visualization_data: Dict[str, Any]
-
 class CustomerDiscoveryReport(BaseModel):
     """Comprehensive customer discovery report"""
 
@@ -36,7 +27,6 @@ class CustomerDiscoveryReport(BaseModel):
     total_market_size: int
     niches: List[CustomerNiche]
     ideal_customer_profile: Dict[str, Any]
-    market_trends: MarketTrendAnalysis
     investor_sentiment: Dict[str, Any]
 
 
@@ -148,7 +138,7 @@ class CustomerDiscoverer:
         5. Investment and funding trends
         6. Competitive dynamics
         """
-        
+
         # Perform search using multiple sources
         try:
             search_contents = self.exa.search_and_contents(market_year_query)
@@ -171,7 +161,7 @@ class CustomerDiscoverer:
         - Investment trends
         - Competitive landscape shifts
         """
-        
+
         year_analysis = self.llm.generate(
             ChatRequest(
                 messages=[
@@ -184,14 +174,11 @@ class CustomerDiscoverer:
         return {
             "year": year,
             "analysis": year_analysis,
-            "raw_search_results": search_results
+            "raw_search_results": search_results,
         }
 
     def compile_comprehensive_report(self):
         """Compile a comprehensive customer discovery report with year-by-year analysis"""
-        # Perform year-specific market searches
-        years = list(range(2019, 2025))
-        yearly_market_insights = [self.search_market_for_year(year) for year in years]
 
         # Generate investor sentiment
         investor_sentiment_query = f"""
@@ -203,6 +190,8 @@ class CustomerDiscoverer:
                 messages=[Message(role="user", content=investor_sentiment_query)]
             )
         )
+
+        print("Investor insights:", investor_insights)
 
         # Generate ideal customer profile
         ideal_customer_profile_query = f"""
@@ -222,43 +211,7 @@ class CustomerDiscoverer:
             )
         )
 
-        # Compile comprehensive market trends analysis
-        market_trends_compilation_query = f"""
-        Synthesize the year-by-year market insights for the {self.domain} domain.
-        Create a comprehensive analysis that:
-        1. Identifies overarching trends
-        2. Highlights key inflection points
-        3. Provides predictive insights
-        4. Suggests visualization strategies
-        """
-        
-        market_trends_insights = self.llm.generate(
-            ChatRequest(
-                messages=[
-                    Message(role="user", content=market_trends_compilation_query),
-                    Message(role="system", content=str(yearly_market_insights))
-                ]
-            )
-        )
-
-        # Parse the market trends insights
-        try:
-            parsed_trends = self.llm.generate(
-                ChatRequest(messages=[
-                    Message(role="system", content="Parse the following market trends into a structured JSON format"),
-                    Message(role="user", content=market_trends_insights)
-                ]),
-                response_format=MarketTrendAnalysis
-            )
-        except Exception as e:
-            # Fallback to a basic structure if parsing fails
-            parsed_trends = MarketTrendAnalysis(
-                historical_data={year_insight['year']: year_insight['analysis'] for year_insight in yearly_market_insights},
-                growth_trajectory={},
-                key_inflection_points=[],
-                predictive_insights={},
-                visualization_data={}
-            )
+        print("Ideal customer profile:", ideal_customer_insights)
 
         self.comprehensive_report = CustomerDiscoveryReport(
             primary_domain=self.domain,
@@ -266,7 +219,6 @@ class CustomerDiscoverer:
             niches=self.niches,
             investor_sentiment={"insights": investor_insights},
             ideal_customer_profile={"insights": ideal_customer_insights},
-            market_trends=parsed_trends,
         )
 
     def discover(self):
