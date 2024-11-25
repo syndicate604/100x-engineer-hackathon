@@ -17,6 +17,46 @@ from app.routers.market_expansion import MarketExpander, MarketExpansionStrategy
 from app.llm import LiteLLMKit
 
 
+class PDFReportGenerator:
+    @staticmethod
+    def generate_pdf(reports, output_path):
+        """Generate a comprehensive PDF report from market insights"""
+        customer_discovery, market_analysis, market_expansion = reports
+        
+        # Create PDF document
+        doc = SimpleDocTemplate(output_path, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+
+        # Title
+        story.append(Paragraph("Market Insights Report", styles['Title']))
+        story.append(Spacer(1, 12))
+
+        # Customer Discovery Section
+        story.append(Paragraph("Customer Discovery Report", styles['Heading2']))
+        story.append(Paragraph(str(customer_discovery), styles['Normal']))
+        story.append(Spacer(1, 12))
+
+        # Market Analysis Section
+        story.append(Paragraph("Market Analysis Report", styles['Heading2']))
+        story.append(Paragraph(str(market_analysis), styles['Normal']))
+        story.append(Spacer(1, 12))
+
+        # Market Expansion Section
+        story.append(Paragraph("Market Expansion Strategy", styles['Heading2']))
+        story.append(Paragraph(str(market_expansion), styles['Normal']))
+
+        # Generate PDF
+        doc.build(story)
+
+    @staticmethod
+    def base64_to_image(base64_string, output_path):
+        """Convert base64 image to file"""
+        image_data = base64.b64decode(base64_string)
+        with open(output_path, 'wb') as f:
+            f.write(image_data)
+
+
 class MarketInsightUI:
     def __init__(self):
         st.set_page_config(
