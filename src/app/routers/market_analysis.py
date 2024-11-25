@@ -184,45 +184,65 @@ class MarketAnalyzer:
         }
 
     def perform_analysis(self):
-        """Perform comprehensive market analysis with year-specific searches"""
-        years = list(range(2022, 2025))
+        """Perform comprehensive market analysis with targeted approach"""
+        years = list(range(2019, 2025))  # Expanded year range
 
-        for question in self.questions[0:5]:
-            # Perform year-specific searches
-            yearly_insights = [
-                self.search_market_for_year(year, question) for year in years
+        # Year-by-year analysis for the original query (first question)
+        if self.questions:
+            original_query_insights = [
+                self.search_market_for_year(year, self.original_query) 
+                for year in years
             ]
 
-            print(f"Yearly insights for '{question}': {yearly_insights}")
+            print(f"Yearly insights for original query: {original_query_insights}")
 
-            self.search_results[question] = {"yearly_insights": yearly_insights}
+            self.search_results[self.original_query] = {
+                "yearly_insights": original_query_insights
+            }
 
-            year_insights_analysis = [
-                insight["analysis"] for insight in yearly_insights
+            # Compile comprehensive report for original query
+            original_query_analysis = [
+                insight["analysis"] for insight in original_query_insights
             ]
 
-            # Compile a comprehensive report for the question
-            compilation_prompt = f"""
-            Synthesize the year-by-year market insights for the question: '{question}'.
-            Create a comprehensive analysis that:
-            1. Identifies overarching trends
-            2. Highlights key inflection points
-            3. Provides predictive insights
-            4. Suggests strategic recommendations
-            """
-
-            comprehensive_report = self.llm.generate(
+            original_query_report = self.llm.generate(
                 ChatRequest(
                     messages=[
-                        Message(role="user", content=compilation_prompt),
-                        Message(role="system", content=str(year_insights_analysis)),
+                        Message(role="user", content=f"""
+                        Synthesize the year-by-year market insights for the original query: '{self.original_query}'.
+                        Create a comprehensive analysis that:
+                        1. Identifies overarching trends
+                        2. Highlights key inflection points
+                        3. Provides predictive insights
+                        4. Suggests strategic recommendations
+                        """),
+                        Message(role="system", content=str(original_query_analysis)),
                     ]
                 )
             )
 
-            print(f"Comprehensive report for '{question}': {comprehensive_report}")
+            self.reports[self.original_query] = original_query_report
 
-            self.reports[question] = comprehensive_report
+        # Standard internet research for remaining questions
+        remaining_questions = self.questions[1:4]  # Limit to prevent excessive AI calls
+        for question in remaining_questions:
+            # Generate search query
+            search_query = self.generate_search_query(question)
+            
+            # Perform internet search
+            search_results = self.search_internet(search_query)
+            
+            # Analyze search results
+            question_analysis = self.analyze_search_results(question, search_results)
+            
+            # Store results
+            self.search_results[question] = {
+                "search_query": search_query,
+                "search_results": search_results
+            }
+            self.reports[question] = question_analysis
+
+            print(f"Processed question: {question}")
 
     def generate_trend_visualization(self) -> MarketTrendVisualization:
         """Generate comprehensive trend visualization and analysis"""
