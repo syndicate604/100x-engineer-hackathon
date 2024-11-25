@@ -1,3 +1,4 @@
+```mermaid
 flowchart TD
     Start --> ExtractKeyInsights["_extract_key_insights()"]
     ExtractKeyInsights --> GenerateEvolutionStrategy["generate_product_evolution_strategy()"]
