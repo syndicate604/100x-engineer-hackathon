@@ -4,6 +4,12 @@ import tempfile
 import streamlit as st
 import asyncio
 from datetime import datetime
+import base64
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet
+import io
+import matplotlib.pyplot as plt
 
 from app.routers.customer_discovery import CustomerDiscoverer, CustomerDiscoveryReport
 from app.routers.market_analysis import MarketAnalyzer, MarketAnalysisReport
@@ -18,6 +24,8 @@ class MarketInsightUI:
         )
         self.temp_dir = tempfile.mkdtemp()
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.pdf_report_path = os.path.join(self.temp_dir, f"{self.session_id}_market_insights.pdf")
+        self.reports = None
 
     def _save_report_to_json(self, report, report_type):
         """Save report to a JSON file in the temp directory"""
@@ -114,8 +122,9 @@ class MarketInsightUI:
         )
 
     def display_reports(self, reports):
-        """Display generated market reports"""
+        """Display generated market reports with visualizations and export options"""
         customer_discovery, market_analysis, market_expansion = reports
+        self.reports = reports  # Store reports for potential PDF export
 
         st.title("🚀 Market Insights Dashboard")
 
@@ -124,6 +133,7 @@ class MarketInsightUI:
             "Customer Discovery Report",
             "Market Analysis Report",
             "Market Expansion Strategy",
+            "Visualizations"
         ]
         selected_report = st.sidebar.radio("Select Report", report_options)
 
@@ -139,6 +149,49 @@ class MarketInsightUI:
         elif selected_report == "Market Expansion Strategy":
             st.subheader("Market Expansion Strategy")
             st.json(market_expansion.model_dump())
+
+        elif selected_report == "Visualizations":
+            self._display_visualizations(reports)
+
+        # PDF Export Button
+        if st.sidebar.button("Export Reports as PDF"):
+            self._export_pdf()
+
+    def _display_visualizations(self, reports):
+        """Display various visualizations from reports"""
+        st.title("Market Insights Visualizations")
+        
+        # Placeholder for visualization methods
+        # You'll need to implement these methods in respective report classes
+        # Example placeholders:
+        st.subheader("Customer Discovery Visualization")
+        # customer_discovery_viz = reports[0].generate_visualization()
+        # st.pyplot(customer_discovery_viz)
+
+        st.subheader("Market Analysis Trend")
+        # market_analysis_trend = reports[1].generate_trend_visualization()
+        # st.pyplot(market_analysis_trend)
+
+        st.subheader("Market Expansion Strategy")
+        # market_expansion_viz = reports[2].generate_strategy_visualization()
+        # st.pyplot(market_expansion_viz)
+
+    def _export_pdf(self):
+        """Export reports to PDF and provide download link"""
+        if self.reports:
+            PDFReportGenerator.generate_pdf(self.reports, self.pdf_report_path)
+            
+            with open(self.pdf_report_path, "rb") as pdf_file:
+                pdf_bytes = pdf_file.read()
+            
+            st.download_button(
+                label="Download Market Insights PDF",
+                data=pdf_bytes,
+                file_name=f"market_insights_{self.session_id}.pdf",
+                mime="application/pdf"
+            )
+        else:
+            st.error("No reports available for PDF export")
 
     def run(self):
         """Main application workflow"""
@@ -165,3 +218,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Note: You'll need to install additional dependencies
+# pip install reportlab
