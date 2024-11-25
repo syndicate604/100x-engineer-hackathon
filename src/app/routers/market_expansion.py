@@ -44,35 +44,22 @@ class MarketExpander:
     """Advanced market expansion analysis tool"""
 
     def __init__(
-        self, primary_domain: str, llm_model: str = "gpt-4o", temperature: float = 0.7
+        self, 
+        customer_discovery_report: CustomerDiscoveryReport, 
+        market_analysis_report: MarketAnalysisReport, 
+        llm_model: str = "gpt-4o", 
+        temperature: float = 0.7
     ):
-        """Initialize Market Expander with LLM and external search APIs"""
+        """Initialize Market Expander with pre-generated reports"""
         self.settings = get_settings()
         self.llm = LiteLLMKit(model_name=llm_model, temperature=temperature)
         self.jina = JinaReader(self.settings.JINA_API_KEY)
         self.exa = ExaAPI(self.settings.EXA_API_KEY)
 
-        self.primary_domain = primary_domain
-        self.customer_discovery_report: Optional[CustomerDiscoveryReport] = None
-        self.market_analysis_report: Optional[MarketAnalysisReport] = None
+        self.primary_domain = customer_discovery_report.primary_domain
+        self.customer_discovery_report = customer_discovery_report
+        self.market_analysis_report = market_analysis_report
         self.expansion_strategy: Optional[MarketExpansionStrategy] = None
-
-    def discover_primary_domain(self) -> CustomerDiscoveryReport:
-        """Perform comprehensive customer discovery for primary domain"""
-        discoverer = CustomerDiscoverer(self.primary_domain)
-        self.customer_discovery_report = discoverer.discover()
-        assert self.customer_discovery_report is not None
-        return self.customer_discovery_report
-
-    def analyze_primary_domain(self) -> MarketAnalysisReport:
-        """Perform comprehensive market analysis for primary domain"""
-        analyzer = MarketAnalyzer()
-        analyzer.breakdown_problem(self.primary_domain)
-        analyzer.perform_analysis()
-        analyzer.compile_comprehensive_report()
-
-        self.market_analysis_report = analyzer.get_report()
-        return self.market_analysis_report
 
     def generate_expansion_domains(self) -> List[str]:
         """Generate potential market expansion domains"""
@@ -196,10 +183,6 @@ class MarketExpander:
         """Execute full market expansion workflow"""
         print(f"Initiating market expansion analysis for domain: {self.primary_domain}")
 
-        # Discover and analyze primary domain
-        self.discover_primary_domain()
-        self.analyze_primary_domain()
-
         # Generate potential expansion domains
         expansion_domains = self.generate_expansion_domains()
         print(f"Potential expansion domains: {expansion_domains}")
@@ -211,7 +194,13 @@ class MarketExpander:
 
 
 @router.post("/expand")
-def market_expansion_endpoint(domain: str):
+def market_expansion_endpoint(
+    customer_discovery_report: CustomerDiscoveryReport, 
+    market_analysis_report: MarketAnalysisReport
+):
     """FastAPI endpoint for market expansion analysis"""
-    expander = MarketExpander(domain)
+    expander = MarketExpander(
+        customer_discovery_report, 
+        market_analysis_report
+    )
     return expander.expand_market()
