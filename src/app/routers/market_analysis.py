@@ -118,14 +118,14 @@ class MarketAnalyzer:
         """Search internet with fallback mechanism"""
         try:
             # Try Exa first
-            return [self.jina.search(search_query)]
+            exa_results = self.exa.search_and_contents(search_query)
+            return [result.text for result in exa_results.results]
 
         except Exception as e:
             if fallback:
                 try:
                     # Fallback to Jina
-                    exa_results = self.exa.search_and_contents(search_query)
-                    return [result.text for result in exa_results.results]
+                    return [self.jina.search(search_query)]
                 except Exception:
                     return []
             return []
