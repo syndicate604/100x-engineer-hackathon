@@ -95,35 +95,6 @@ class MarketInsightUI:
             json.dump(report.model_dump(), f, indent=2)
         return filename
 
-    def customer_onboarding(self):
-        """Initial customer onboarding and problem statement collection"""
-        st.title("🌟 Market Insight Generator")
-
-        st.markdown("""
-        ### Welcome to Your Market Strategy Companion
-        Let's help you explore and understand your market potential.
-        """)
-
-        with st.form("problem_statement_form"):
-            domain = st.text_input(
-                "What domain or industry are you exploring?",
-                placeholder="e.g., AI-powered healthcare solutions",
-            )
-            problem_statement = st.text_area(
-                "Describe the problem you want to solve",
-                placeholder="Provide a detailed description of your market challenge",
-            )
-            solution_approach = st.text_area(
-                "How do you plan to approach this problem?",
-                placeholder="Outline your initial strategy or approach",
-            )
-            submitted = st.form_submit_button("Start Market Analysis")
-
-        return (
-            domain,
-            problem_statement,
-            solution_approach if submitted else (None, None, None),
-        )
 
     async def generate_market_reports(self, domain):
         """Asynchronously generate market reports"""
