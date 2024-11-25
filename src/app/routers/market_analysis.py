@@ -24,7 +24,7 @@ class ProblemBreakdown(BaseModel):
 
 
 class MarketTrendVisualization(BaseModel):
-    """Detailed market trend visualization data"""
+    """Detailed market trend visualization data with analytical reasoning"""
 
     x_axis_labels: List[str] = Field(
         ..., description="Labels for the x-axis (time period)"
@@ -34,6 +34,12 @@ class MarketTrendVisualization(BaseModel):
     y_axis_name: str = Field(..., description="Name of the y-axis")
     data: List[List[float]] = Field(
         ..., description="Data points for the trend visualization"
+    )
+    reasoning: str = Field(
+        ..., description="Detailed explanation and insights behind the trend data"
+    )
+    key_insights: List[str] = Field(
+        ..., description="Key strategic insights derived from the trend analysis"
     )
 
 
@@ -287,12 +293,35 @@ class MarketAnalyzer:
         # Generate comprehensive trend visualization
         trend_visualization_query = f"""
         Based on these yearly trend analyses: {year_trends}
-        Create a comprehensive trend visualization that:
-        1. Identifies key trend lines
-        2. Highlights year-over-year changes
-        3. Provides predictive insights
-        4. Suggests strategic implications
-        Provide numerical data for visualization
+        Create a comprehensive trend visualization with the following requirements:
+
+        Data Generation Guidelines:
+        1. Generate 3-5 distinct trend lines representing different market metrics
+        2. Ensure data points are floating-point numbers between 0 and 100
+        3. Create consistent, plausible year-over-year progression
+        4. Include metrics like:
+           - Market Growth Rate
+           - Innovation Index
+           - Investment Sentiment
+           - Technology Adoption
+           - Competitive Intensity
+
+        Visualization Requirements:
+        1. Provide precise numerical data for each metric from 2019-2025
+        2. Ensure data tells a coherent market evolution story
+        3. Include realistic fluctuations and trend patterns
+        4. Generate data that shows both linear and non-linear trends
+
+        Analytical Requirements:
+        1. Explain the reasoning behind each trend line
+        2. Highlight key inflection points and market shifts
+        3. Provide strategic implications of the observed trends
+        4. Discuss potential future scenarios based on the data
+
+        Output Format:
+        - Structured, machine-readable numerical data
+        - Comprehensive textual reasoning
+        - Strategic insights and recommendations
         """
 
         messages = [
