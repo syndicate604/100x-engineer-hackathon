@@ -185,13 +185,15 @@ class MarketAnalyzer:
 
     def perform_analysis(self):
         """Perform comprehensive market analysis with year-specific searches"""
-        years = list(range(2019, 2025))
+        years = list(range(2022, 2025))
 
-        for question in self.questions:
+        for question in self.questions[0:5]:
             # Perform year-specific searches
             yearly_insights = [
                 self.search_market_for_year(year, question) for year in years
             ]
+
+            print(f"Yearly insights for '{question}': {yearly_insights}")
 
             self.search_results[question] = {"yearly_insights": yearly_insights}
 
@@ -217,6 +219,8 @@ class MarketAnalyzer:
                     ]
                 )
             )
+
+            print(f"Comprehensive report for '{question}': {comprehensive_report}")
 
             self.reports[question] = comprehensive_report
 
