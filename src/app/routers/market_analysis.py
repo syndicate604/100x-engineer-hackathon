@@ -21,14 +21,16 @@ class ProblemBreakdown(BaseModel):
 
 class MarketTrendVisualization(BaseModel):
     """Detailed market trend visualization data"""
+
     x_axis_labels: List[str] = Field(
         ..., description="Labels for the x-axis (time period)"
     )
-    y_axis_labels: List[str] = Field(
-        ..., description="Labels for the y-axis (metrics)"
-    )
+    y_axis_labels: List[str] = Field(..., description="Labels for the y-axis (metrics)")
     x_axis_name: str = Field(..., description="Name of the x-axis")
     y_axis_name: str = Field(..., description="Name of the y-axis")
+    data: List[List[float]] = Field(
+        ..., description="Data points for the trend visualization"
+    )
 
 
 class MarketAnalysisReport(BaseModel):
@@ -38,7 +40,6 @@ class MarketAnalysisReport(BaseModel):
     problem_breakdown: ProblemBreakdown
     search_results: Dict[str, Dict[str, Any]]
     comprehensive_report: str
-    trend_visualization: MarketTrendVisualization
 
 
 class MarketAnalyzer:
@@ -192,8 +193,7 @@ class MarketAnalyzer:
         # Year-by-year analysis for the original query (first question)
         if self.questions:
             original_query_insights = [
-                self.search_market_for_year(year, self.original_query) 
-                for year in years
+                self.search_market_for_year(year, self.original_query) for year in years
             ]
 
             print(f"Yearly insights for original query: {original_query_insights}")
@@ -210,14 +210,17 @@ class MarketAnalyzer:
             original_query_report = self.llm.generate(
                 ChatRequest(
                     messages=[
-                        Message(role="user", content=f"""
+                        Message(
+                            role="user",
+                            content=f"""
                         Synthesize the year-by-year market insights for the original query: '{self.original_query}'.
                         Create a comprehensive analysis that:
                         1. Identifies overarching trends
                         2. Highlights key inflection points
                         3. Provides predictive insights
                         4. Suggests strategic recommendations
-                        """),
+                        """,
+                        ),
                         Message(role="system", content=str(original_query_analysis)),
                     ]
                 )
@@ -230,17 +233,17 @@ class MarketAnalyzer:
         for question in remaining_questions:
             # Generate search query
             search_query = self.generate_search_query(question)
-            
+
             # Perform internet search
             search_results = self.search_internet(search_query)
-            
+
             # Analyze search results
             question_analysis = self.analyze_search_results(question, search_results)
-            
+
             # Store results
             self.search_results[question] = {
                 "search_query": search_query,
-                "search_results": search_results
+                "search_results": search_results,
             }
             self.reports[question] = question_analysis
 
@@ -249,7 +252,7 @@ class MarketAnalyzer:
     async def generate_trend_visualization(self) -> MarketTrendVisualization:
         """Generate comprehensive trend visualization and analysis using async processing"""
         years = list(range(2019, 2025))
-        
+
         async def analyze_year_trend(year: int) -> Dict[str, Any]:
             """Async function to analyze trend for a specific year"""
             trend_query = f"""
@@ -260,32 +263,25 @@ class MarketAnalyzer:
             4. Market sentiment
             5. Predictive insights
             """
-            
+
             messages = [
                 Message(
-                    role="system", 
-                    content="You are an expert trend analyst. Provide concise, data-driven insights."
+                    role="system",
+                    content="You are an expert trend analyst. Provide concise, data-driven insights.",
                 ),
-                Message(
-                    role="user", 
-                    content=trend_query
-                )
+                Message(role="user", content=trend_query),
             ]
-            
+
             request = ChatRequest(messages=messages)
-            return {
-                "year": year,
-                "trend_analysis": await self.llm.agenerate(request)
-            }
-        
+            return {"year": year, "trend_analysis": await self.llm.agenerate(request)}
+
         # Use asyncio to process year trends concurrently
         import asyncio
-        year_trends = await asyncio.gather(*[analyze_year_trend(year) for year in years])
-        
-        # Prepare visualization data
-        x_axis_labels = [str(trend['year']) for trend in year_trends]
-        y_axis_labels = ['Growth', 'Innovation', 'Market Sentiment']
-        
+
+        year_trends = await asyncio.gather(
+            *[analyze_year_trend(year) for year in years]
+        )
+
         # Generate comprehensive trend visualization
         trend_visualization_query = f"""
         Based on these yearly trend analyses: {year_trends}
@@ -295,32 +291,22 @@ class MarketAnalyzer:
         3. Provides predictive insights
         4. Suggests strategic implications
         """
-        
+
         messages = [
             Message(
-                role="system", 
-                content="You are an advanced data visualization expert. Generate structured trend data."
+                role="system",
+                content="You are an advanced data visualization expert. Generate structured trend data.",
             ),
-            Message(
-                role="user", 
-                content=trend_visualization_query
-            )
+            Message(role="user", content=trend_visualization_query),
         ]
-        
+
         request = ChatRequest(messages=messages)
         trend_data = self.llm.generate(
-            request, 
-            response_format=MarketTrendVisualization
+            request, response_format=MarketTrendVisualization
         )
-        
-        trend_visualization = MarketTrendVisualization(
-            x_axis_labels=x_axis_labels,
-            y_axis_labels=y_axis_labels,
-            x_axis_name="Year",
-            y_axis_name="Market Trends",
-            **trend_data
-        )
-        
+
+        trend_visualization = MarketTrendVisualization(**trend_data)
+
         return trend_visualization
 
     def compile_comprehensive_report(self):
@@ -343,9 +329,6 @@ class MarketAnalyzer:
         request = ChatRequest(messages=messages)
         self.comprehensive_report = self.llm.generate(request)
 
-        # Generate trend visualization
-        self.trend_visualization = self.generate_trend_visualization()
-
         return self.comprehensive_report
 
     def get_report(self) -> MarketAnalysisReport:
@@ -355,7 +338,6 @@ class MarketAnalyzer:
             problem_breakdown=ProblemBreakdown(questions=self.questions),
             search_results=self.search_results,
             comprehensive_report=self.comprehensive_report,
-            trend_visualization=self.trend_visualization,
         )
 
 
