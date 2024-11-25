@@ -24,9 +24,9 @@ class ProductEvolutionPhase(BaseModel):
     key_features: List[str]
     value_proposition: str
     expected_market_reaction: str
-    success_metrics: Dict[str, Any]
-    estimated_timeline: Dict[str, str]
-    risk_mitigation_strategies: List[str]
+    success_metrics: Dict[str, Any] = {}
+    estimated_timeline: Dict[str, str] = {}
+    risk_mitigation_strategies: List[str] = []
 
 
 class UserAdoptionTrend(BaseModel):
@@ -46,9 +46,9 @@ class ProductEvolutionStrategy(BaseModel):
 
     primary_domain: str
     phases: List[ProductEvolutionPhase]
-    overall_vision: str
-    long_term_goals: List[str]
-    competitive_differentiation: Dict[str, str]
+    overall_vision: str = ""
+    long_term_goals: List[str] = []
+    competitive_differentiation: Dict[str, str] = {}
     user_adoption_trend: Optional[UserAdoptionTrend] = None
 
 
