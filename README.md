@@ -63,6 +63,18 @@ poetry run uvicorn src.app.main:app --reload
 - **Market Expansion**: Strategic growth recommendations
 - **Product Evolution**: Data-driven product strategy
 
+## Workflow Visualizations
+
+Detailed workflow diagrams are available to understand the internal processes of our core modules:
+
+### 📊 Workflow Visualizers
+- [Customer Discovery Workflow](docs/workflow_visualizer/customer_discovery.md)
+- [Market Analysis Workflow](docs/workflow_visualizer/market_analyser.md)
+- [Market Expansion Workflow](docs/workflow_visualizer/market_expansion.md)
+- [Product Evolution Workflow](docs/workflow_visualizer/product_evolution.md)
+
+These Mermaid-based flowcharts provide insights into the AI-driven processes powering our intelligent market research platform.
+
 ## Contributing
 
 1. Fork the repository
