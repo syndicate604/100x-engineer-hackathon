@@ -1,12 +1,16 @@
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
+import matplotlib.pyplot as plt
+import io
+import base64
 
 from app.routers.customer_discovery import CustomerDiscoveryReport
 from app.routers.market_analysis import MarketAnalysisReport
 from app.routers.market_expansion import MarketExpansionStrategy
 from app.llm import LiteLLMKit
 from app.schemas.llm import ChatRequest, Message
+from app.schemas.visualization import TrendVisualizationResponse
 
 router = APIRouter(prefix="/product-evolution", tags=["product_evolution"])
 
@@ -24,6 +28,17 @@ class ProductEvolutionPhase(BaseModel):
     estimated_timeline: Dict[str, str]
     risk_mitigation_strategies: List[str]
 
+class UserAdoptionTrend(BaseModel):
+    """User adoption trend visualization data"""
+    
+    x_axis_labels: List[str]
+    y_axis_labels: List[str]
+    data: List[List[float]]
+    x_axis_name: str
+    y_axis_name: str
+    reasoning: str
+    key_insights: List[str]
+
 class ProductEvolutionStrategy(BaseModel):
     """Comprehensive product evolution roadmap"""
     
@@ -32,6 +47,7 @@ class ProductEvolutionStrategy(BaseModel):
     overall_vision: str
     long_term_goals: List[str]
     competitive_differentiation: Dict[str, str]
+    user_adoption_trend: Optional[UserAdoptionTrend] = None
 
 class ProductEvolver:
     """Advanced product evolution strategy generator"""
@@ -120,7 +136,81 @@ class ProductEvolver:
         )
         
         self.evolution_strategy = ProductEvolutionStrategy(**evolution_strategy_response)
+        
+        # Generate user adoption trend visualization
+        self.evolution_strategy.user_adoption_trend = self._generate_user_adoption_trend()
+        
         return self.evolution_strategy
+
+    def _generate_user_adoption_trend(self) -> UserAdoptionTrend:
+        """Generate user adoption trend visualization"""
+        # Simulate user adoption trend data generation
+        user_adoption_query = f"""
+        Generate a user adoption trend visualization for the {self.primary_domain} domain.
+        
+        Requirements:
+        1. Create trend lines for:
+           - Beta Users
+           - Actual Paying Users
+           - Total Users
+        2. Cover product evolution phases
+        3. Show realistic user growth patterns
+        4. Include reasoning and key insights
+        """
+        
+        messages = [
+            Message(
+                role="system", 
+                content="You are an expert in user adoption trend analysis. Generate realistic, strategic user growth data."
+            ),
+            Message(role="user", content=user_adoption_query)
+        ]
+        
+        request = ChatRequest(messages=messages)
+        user_adoption_response = self.llm.generate(
+            request, 
+            response_format=UserAdoptionTrend
+        )
+        
+        return UserAdoptionTrend(**user_adoption_response)
+
+    def visualize_user_adoption_trend(self, trend_data: UserAdoptionTrend) -> TrendVisualizationResponse:
+        """
+        Visualize user adoption trend data using matplotlib
+
+        Args:
+            trend_data (UserAdoptionTrend): User adoption trend visualization data
+
+        Returns:
+            TrendVisualizationResponse: Visualization with image and insights
+        """
+        plt.figure(figsize=(12, 6))
+
+        # Plot each trend line
+        for i, y_label in enumerate(trend_data.y_axis_labels):
+            plt.plot(
+                trend_data.x_axis_labels, trend_data.data[i], label=y_label, marker="o"
+            )
+
+        plt.title(f"User Adoption Trend: {trend_data.y_axis_name}")
+        plt.xlabel(trend_data.x_axis_name)
+        plt.ylabel(trend_data.y_axis_name)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+
+        # Save plot to a base64 encoded image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        plt.close()
+        
+        return {
+            "img": image_base64,
+            "reason": trend_data.reasoning,
+            "insights": trend_data.key_insights,
+        }
 
 @router.post("/evolve")
 def product_evolution_endpoint(
@@ -135,3 +225,22 @@ def product_evolution_endpoint(
         market_expansion
     )
     return evolver.generate_product_evolution_strategy()
+
+@router.post("/user-adoption-trend")
+def user_adoption_trend_endpoint(
+    customer_discovery: CustomerDiscoveryReport,
+    market_analysis: MarketAnalysisReport,
+    market_expansion: MarketExpansionStrategy
+):
+    """FastAPI endpoint for user adoption trend visualization"""
+    evolver = ProductEvolver(
+        customer_discovery, 
+        market_analysis, 
+        market_expansion
+    )
+    evolution_strategy = evolver.generate_product_evolution_strategy()
+    
+    if evolution_strategy.user_adoption_trend:
+        return evolver.visualize_user_adoption_trend(evolution_strategy.user_adoption_trend)
+    
+    return {"error": "User adoption trend not available"}
