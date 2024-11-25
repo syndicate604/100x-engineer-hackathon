@@ -63,8 +63,11 @@ streamlit run src/frontend/app_page.py
 ## Core Modules
 
 •⁠ ⁠*Customer Discovery*: Advanced customer segmentation
+
 •⁠ ⁠*Market Analysis*: Comprehensive market research
+
 •⁠ ⁠*Market Expansion*: Strategic growth recommendations
+
 •⁠ ⁠*Product Evolution*: Data-driven product strategy
 
 ## Workflow Visualizations
@@ -74,8 +77,11 @@ Detailed workflow diagrams are available to understand the internal processes of
 ### 📊 Workflow Visualizers
 
 •⁠ ⁠[Customer Discovery Workflow](docs/workflow_visualizer/customer_discovery.md)
+
 •⁠ ⁠[Market Analysis Workflow](docs/workflow_visualizer/market_analyser.md)
+
 •⁠ ⁠[Market Expansion Workflow](docs/workflow_visualizer/market_expansion.md)
+
 •⁠ ⁠[Product Evolution Workflow](docs/workflow_visualizer/product_evolution.md)
 
 These Mermaid-based flowcharts provide insights into the AI-driven processes powering our intelligent market research platform.
@@ -94,6 +100,4 @@ Distributed under the MIT License. See ⁠ LICENSE ⁠ for more information.
 
 ## Contact
 
-Your Name - your.email@example.com
-
-Project Link: [https://github.com/yourusername/100x-engineer](https://github.com/yourusername/100x-engineer)
+Your Name - rishub@craftsmanlabs.net

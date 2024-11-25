@@ -16,6 +16,7 @@ strategic expansion opportunities.
 
 ## Workflow Diagram
 
+```mermaid
 graph TD
     A[Start Market Expansion] --> B[Integrate Customer Discovery Report]
     B --> C[Integrate Market Analysis Report]
@@ -46,3 +47,4 @@ graph TD
     style P fill:#bbf,stroke:#333,stroke-width:4px
     style D fill:#bfb,stroke:#333,stroke-width:2px
     style I fill:#ff9,stroke:#333,stroke-width:2px
+```
