@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -24,9 +24,9 @@ class ProductEvolutionPhase(BaseModel):
     key_features: List[str]
     value_proposition: str
     expected_market_reaction: str
-    success_metrics: Dict[str, Any] = {}
-    estimated_timeline: Dict[str, str] = {}
-    risk_mitigation_strategies: List[str] = []
+    success_metrics: Dict[str, Any] = Field(default_factory=dict)
+    estimated_timeline: Dict[str, str] = Field(default_factory=dict)
+    risk_mitigation_strategies: List[str] = Field(default_factory=list)
 
 
 class UserAdoptionTrend(BaseModel):
@@ -46,9 +46,9 @@ class ProductEvolutionStrategy(BaseModel):
 
     primary_domain: str
     phases: List[ProductEvolutionPhase]
-    overall_vision: str = ""
-    long_term_goals: List[str] = []
-    competitive_differentiation: Dict[str, str] = {}
+    overall_vision: str = Field(default="")
+    long_term_goals: List[str] = Field(default_factory=list)
+    competitive_differentiation: Dict[str, str] = Field(default_factory=dict)
     user_adoption_trend: Optional[UserAdoptionTrend] = None
 
 
