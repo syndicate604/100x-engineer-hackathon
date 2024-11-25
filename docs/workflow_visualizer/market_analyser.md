@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     A[Start Market Analysis] --> B{Breakdown Problem}
     B --> |Generate Sub-Problems| C[Problem Breakdown]
@@ -24,3 +25,4 @@ graph TD
     style A fill:#f9f,stroke:#333,stroke-width:4px
     style O fill:#bbf,stroke:#333,stroke-width:4px
     style J fill:#bfb,stroke:#333,stroke-width:2px
+```
