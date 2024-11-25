@@ -95,7 +95,6 @@ class MarketInsightUI:
             json.dump(report.model_dump(), f, indent=2)
         return filename
 
-
     async def generate_market_reports(self, domain):
         """Asynchronously generate market reports"""
         st.markdown("### 🔍 Generating Market Insights")
@@ -447,6 +446,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Note: You'll need to install additional dependencies
-# pip install reportlab
