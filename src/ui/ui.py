@@ -18,6 +18,8 @@ from app.routers.market_analysis import MarketAnalyzer, MarketAnalysisReport
 from app.routers.market_expansion import MarketExpander, MarketExpansionStrategy
 from app.llm import LiteLLMKit
 
+from ui.chat_ui import MarketInsightsChatUI
+
 
 class PDFReportGenerator:
     @staticmethod
