@@ -24,29 +24,29 @@ class PDFReportGenerator:
     def generate_pdf(reports, output_path):
         """Generate a comprehensive PDF report from market insights"""
         customer_discovery, market_analysis, market_expansion = reports
-        
+
         # Create PDF document
         doc = SimpleDocTemplate(output_path, pagesize=letter)
         styles = getSampleStyleSheet()
         story = []
 
         # Title
-        story.append(Paragraph("Market Insights Report", styles['Title']))
+        story.append(Paragraph("Market Insights Report", styles["Title"]))
         story.append(Spacer(1, 12))
 
         # Customer Discovery Section
-        story.append(Paragraph("Customer Discovery Report", styles['Heading2']))
-        story.append(Paragraph(str(customer_discovery), styles['Normal']))
+        story.append(Paragraph("Customer Discovery Report", styles["Heading2"]))
+        story.append(Paragraph(str(customer_discovery), styles["Normal"]))
         story.append(Spacer(1, 12))
 
         # Market Analysis Section
-        story.append(Paragraph("Market Analysis Report", styles['Heading2']))
-        story.append(Paragraph(str(market_analysis), styles['Normal']))
+        story.append(Paragraph("Market Analysis Report", styles["Heading2"]))
+        story.append(Paragraph(str(market_analysis), styles["Normal"]))
         story.append(Spacer(1, 12))
 
         # Market Expansion Section
-        story.append(Paragraph("Market Expansion Strategy", styles['Heading2']))
-        story.append(Paragraph(str(market_expansion), styles['Normal']))
+        story.append(Paragraph("Market Expansion Strategy", styles["Heading2"]))
+        story.append(Paragraph(str(market_expansion), styles["Normal"]))
 
         # Generate PDF
         doc.build(story)
@@ -55,7 +55,7 @@ class PDFReportGenerator:
     def base64_to_image(base64_string, output_path):
         """Convert base64 image to file"""
         image_data = base64.b64decode(base64_string)
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(image_data)
 
 
@@ -66,22 +66,24 @@ class MarketInsightUI:
         )
         self.temp_dir = tempfile.mkdtemp()
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.pdf_report_path = os.path.join(self.temp_dir, f"{self.session_id}_market_insights.pdf")
-        
+        self.pdf_report_path = os.path.join(
+            self.temp_dir, f"{self.session_id}_market_insights.pdf"
+        )
+
         # Initialize session state for workflow progression
-        if 'workflow_stage' not in st.session_state:
-            st.session_state.workflow_stage = 'customer_onboarding'
-        
+        if "workflow_stage" not in st.session_state:
+            st.session_state.workflow_stage = "customer_onboarding"
+
         # Initialize reports dictionary
-        if 'reports' not in st.session_state:
+        if "reports" not in st.session_state:
             st.session_state.reports = {
-                'domain': None,
-                'customer_discovery': None,
-                'market_analysis': None,
-                'market_expansion': None,
-                'product_evolution': None
+                "domain": None,
+                "customer_discovery": None,
+                "market_analysis": None,
+                "market_expansion": None,
+                "product_evolution": None,
             }
-        
+
         self.reports = st.session_state.reports
 
     def _save_report_to_json(self, report, report_type):
@@ -190,7 +192,7 @@ class MarketInsightUI:
             "Customer Discovery Report",
             "Market Analysis Report",
             "Market Expansion Strategy",
-            "Visualizations"
+            "Visualizations",
         ]
         selected_report = st.sidebar.radio("Select Report", report_options)
 
@@ -217,7 +219,7 @@ class MarketInsightUI:
     def _display_visualizations(self, reports):
         """Display various visualizations from reports"""
         st.title("Market Insights Visualizations")
-        
+
         # Placeholder for visualization methods
         # You'll need to implement these methods in respective report classes
         # Example placeholders:
@@ -237,15 +239,15 @@ class MarketInsightUI:
         """Export reports to PDF and provide download link"""
         if self.reports:
             PDFReportGenerator.generate_pdf(self.reports, self.pdf_report_path)
-            
+
             with open(self.pdf_report_path, "rb") as pdf_file:
                 pdf_bytes = pdf_file.read()
-            
+
             st.download_button(
                 label="Download Market Insights PDF",
                 data=pdf_bytes,
                 file_name=f"market_insights_{self.session_id}.pdf",
-                mime="application/pdf"
+                mime="application/pdf",
             )
         else:
             st.error("No reports available for PDF export")
@@ -254,12 +256,12 @@ class MarketInsightUI:
         """Main application workflow"""
         # Workflow stages
         workflow_stages = {
-            'customer_onboarding': self.customer_onboarding,
-            'customer_discovery': self.customer_discovery_stage,
-            'market_analysis': self.market_analysis_stage,
-            'market_expansion': self.market_expansion_stage,
-            'product_evolution': self.product_evolution_stage,
-            'final_report': self.final_report_stage
+            "customer_onboarding": self.customer_onboarding,
+            "customer_discovery": self.customer_discovery_stage,
+            "market_analysis": self.market_analysis_stage,
+            "market_expansion": self.market_expansion_stage,
+            "product_evolution": self.product_evolution_stage,
+            "final_report": self.final_report_stage,
         }
 
         # Execute current workflow stage
@@ -296,168 +298,173 @@ class MarketInsightUI:
             submitted = st.form_submit_button("Start Market Analysis")
 
         if submitted and domain:
-            st.session_state.reports['domain'] = domain
-            st.session_state.reports['problem_statement'] = problem_statement
-            st.session_state.reports['solution_approach'] = solution_approach
-            self._advance_workflow('customer_discovery')
+            st.session_state.reports["domain"] = domain
+            st.session_state.reports["problem_statement"] = problem_statement
+            st.session_state.reports["solution_approach"] = solution_approach
+            self._advance_workflow("customer_discovery")
 
     def customer_discovery_stage(self):
         """Customer Discovery Stage with Interactive Logging"""
         st.title("🔍 Customer Discovery")
-        
-        domain = st.session_state.reports['domain']
-        
+
+        domain = st.session_state.reports["domain"]
+
         # Interactive logging placeholder
         log_container = st.empty()
-        
-        with st.spinner('Discovering Customer Insights...'):
+
+        with st.spinner("Discovering Customer Insights..."):
             customer_discoverer = CustomerDiscoverer(domain)
-            
+
             # Capture print statements
             old_stdout = sys.stdout
             sys.stdout = captured_output = io.StringIO()
-            
+
             try:
                 customer_discovery_report = customer_discoverer.discover()
-                
+
                 # Restore stdout and get captured output
                 sys.stdout = old_stdout
                 log_output = captured_output.getvalue()
-                
+
                 log_container.code(log_output)
-                
-                st.session_state.reports['customer_discovery'] = customer_discovery_report
-                
-                if st.button('Proceed to Market Analysis'):
-                    self._advance_workflow('market_analysis')
-            
+
+                st.session_state.reports["customer_discovery"] = (
+                    customer_discovery_report
+                )
+
+                if st.button("Proceed to Market Analysis"):
+                    self._advance_workflow("market_analysis")
+
             except Exception as e:
                 st.error(f"Error in Customer Discovery: {e}")
 
     def market_analysis_stage(self):
         """Market Analysis Stage with Interactive Logging"""
         st.title("📊 Market Analysis")
-        
-        domain = st.session_state.reports['domain']
-        
+
+        domain = st.session_state.reports["domain"]
+
         # Interactive logging placeholder
         log_container = st.empty()
-        
-        with st.spinner('Performing Market Analysis...'):
+
+        with st.spinner("Performing Market Analysis..."):
             market_analyzer = MarketAnalyzer()
-            
+
             # Capture print statements
             old_stdout = sys.stdout
             sys.stdout = captured_output = io.StringIO()
-            
+
             try:
                 market_analyzer.breakdown_problem(domain)
                 market_analyzer.perform_analysis()
                 market_analyzer.compile_comprehensive_report()
                 market_analysis_report = market_analyzer.get_report()
-                
+
                 # Restore stdout and get captured output
                 sys.stdout = old_stdout
                 log_output = captured_output.getvalue()
-                
+
                 log_container.code(log_output)
-                
-                st.session_state.reports['market_analysis'] = market_analysis_report
-                
-                if st.button('Proceed to Market Expansion'):
-                    self._advance_workflow('market_expansion')
-            
+
+                st.session_state.reports["market_analysis"] = market_analysis_report
+
+                if st.button("Proceed to Market Expansion"):
+                    self._advance_workflow("market_expansion")
+
             except Exception as e:
                 st.error(f"Error in Market Analysis: {e}")
 
     def market_expansion_stage(self):
         """Market Expansion Stage with Interactive Logging"""
         st.title("🌐 Market Expansion")
-        
-        customer_discovery_report = st.session_state.reports['customer_discovery']
-        market_analysis_report = st.session_state.reports['market_analysis']
-        
+
+        customer_discovery_report = st.session_state.reports["customer_discovery"]
+        market_analysis_report = st.session_state.reports["market_analysis"]
+
         # Interactive logging placeholder
         log_container = st.empty()
-        
-        with st.spinner('Generating Market Expansion Strategy...'):
+
+        with st.spinner("Generating Market Expansion Strategy..."):
             market_expander = MarketExpander(
-                customer_discovery_report, 
-                market_analysis_report
+                customer_discovery_report, market_analysis_report
             )
-            
+
             # Capture print statements
             old_stdout = sys.stdout
             sys.stdout = captured_output = io.StringIO()
-            
+
             try:
                 market_expansion_strategy = market_expander.expand_market()
-                
+
                 # Restore stdout and get captured output
                 sys.stdout = old_stdout
                 log_output = captured_output.getvalue()
-                
+
                 log_container.code(log_output)
-                
-                st.session_state.reports['market_expansion'] = market_expansion_strategy
-                
-                if st.button('Proceed to Product Evolution'):
-                    self._advance_workflow('product_evolution')
-            
+
+                st.session_state.reports["market_expansion"] = market_expansion_strategy
+
+                if st.button("Proceed to Product Evolution"):
+                    self._advance_workflow("product_evolution")
+
             except Exception as e:
                 st.error(f"Error in Market Expansion: {e}")
 
     def product_evolution_stage(self):
         """Product Evolution Stage with Interactive Logging"""
         st.title("🚀 Product Evolution")
-        
-        customer_discovery_report = st.session_state.reports['customer_discovery']
-        market_analysis_report = st.session_state.reports['market_analysis']
-        market_expansion_strategy = st.session_state.reports['market_expansion']
-        
+
+        customer_discovery_report = st.session_state.reports["customer_discovery"]
+        market_analysis_report = st.session_state.reports["market_analysis"]
+        market_expansion_strategy = st.session_state.reports["market_expansion"]
+
         # Interactive logging placeholder
         log_container = st.empty()
-        
-        with st.spinner('Generating Product Evolution Strategy...'):
+
+        with st.spinner("Generating Product Evolution Strategy..."):
             product_evolver = ProductEvolver(
-                customer_discovery_report, 
-                market_analysis_report, 
-                market_expansion_strategy
+                customer_discovery_report,
+                market_analysis_report,
+                market_expansion_strategy,
             )
-            
+
             # Capture print statements
             old_stdout = sys.stdout
             sys.stdout = captured_output = io.StringIO()
-            
+
             try:
-                product_evolution_strategy = product_evolver.generate_product_evolution_strategy()
-                
+                product_evolution_strategy = (
+                    product_evolver.generate_product_evolution_strategy()
+                )
+
                 # Restore stdout and get captured output
                 sys.stdout = old_stdout
                 log_output = captured_output.getvalue()
-                
+
                 log_container.code(log_output)
-                
-                st.session_state.reports['product_evolution'] = product_evolution_strategy
-                
-                if st.button('View Final Report'):
-                    self._advance_workflow('final_report')
-            
+
+                st.session_state.reports["product_evolution"] = (
+                    product_evolution_strategy
+                )
+
+                if st.button("View Final Report"):
+                    self._advance_workflow("final_report")
+
             except Exception as e:
                 st.error(f"Error in Product Evolution: {e}")
 
     def final_report_stage(self):
         """Final Report Stage with Export Options"""
         st.title("📄 Final Market Insights Report")
-        
+
         # Collect all reports
         reports = [
-            st.session_state.reports['customer_discovery'],
-            st.session_state.reports['market_analysis'],
-            st.session_state.reports['market_expansion'],
-            st.session_state.reports['product_evolution']
+            st.session_state.reports["customer_discovery"],
+            st.session_state.reports["market_analysis"],
+            st.session_state.reports["market_expansion"],
+            st.session_state.reports["product_evolution"],
         ]
-        
+
         # Display reports and export options
         self.display_reports(reports)
 
