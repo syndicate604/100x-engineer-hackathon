@@ -1,10 +1,10 @@
 from typing import List, Dict, Any
 from pydantic import BaseModel
-from app.llm import LiteLLMKit
-from app.jina import JinaReader
-from app.exa import ExaAPI
-from app.config import get_settings
-from app.schemas.llm import ChatRequest, Message
+from src.app.llm import LiteLLMKit
+from src.app.jina import JinaReader
+from src.app.exa import ExaAPI
+from src.app.config import get_settings
+from src.app.schemas.llm import ChatRequest, Message
 from fastapi import APIRouter
 
 

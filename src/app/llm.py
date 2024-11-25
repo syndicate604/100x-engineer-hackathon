@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import json
 from typing import Any
-from app.schemas.llm import (
+from src.app.schemas.llm import (
     ModelProvider,
     Message,
     ChatRequest,

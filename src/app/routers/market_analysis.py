@@ -6,12 +6,12 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, Response
 
-from app.llm import LiteLLMKit
-from app.jina import JinaReader
-from app.exa import ExaAPI
-from app.schemas.llm import ChatRequest, Message
-from app.config import get_settings
-from app.schemas.visualization import (
+from src.app.llm import LiteLLMKit
+from src.app.jina import JinaReader
+from src.app.exa import ExaAPI
+from src.app.schemas.llm import ChatRequest, Message
+from src.app.config import get_settings
+from src.app.schemas.visualization import (
     TrendVisualizationResponse,
     DetailedTrendVisualization,
 )
