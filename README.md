@@ -4,6 +4,11 @@
 
 This project is an advanced AI-driven market intelligence platform designed to help businesses and entrepreneurs gain deep insights into market dynamics, customer needs, and strategic opportunities.
 
+## System Architecture 
+
+•⁠ ⁠[System Workflow](docs/workflow_visualizer/system_architecture.md)
+
+
 ## Key Features
 
 ### 🔍 Market Analysis
