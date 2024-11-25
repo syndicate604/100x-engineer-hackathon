@@ -342,8 +342,8 @@ class MarketAnalyzer:
         return trend_visualization
 
     def visualize_trend(
-        self, trend_data: MarketTrendVisualization, output_format: str = "base64"
-    ) -> Optional[str]:
+        self, trend_data: MarketTrendVisualization
+    ) -> dict[str, str | list[str]]:
         """
         Visualize market trend data using matplotlib
 
@@ -369,20 +369,17 @@ class MarketAnalyzer:
         plt.grid(True)
         plt.tight_layout()
 
-        # Return visualization based on output format
-        if output_format == "base64":
-            # Save plot to a base64 encoded image
-            buffer = io.BytesIO()
-            plt.savefig(buffer, format="png")
-            buffer.seek(0)
-            image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-            plt.close()
-            return image_base64
-        else:
-            # Save plot to a file
-            plt.savefig("market_trend.png")
-            plt.close()
-            return "market_trend.png"
+        # Save plot to a base64 encoded image
+        buffer = io.BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        plt.close()
+        return {
+            "img": image_base64,
+            "reason": trend_data.reasoning,
+            "insights": trend_data.key_insights,
+        }
 
     def compile_comprehensive_report(self):
         """Compile individual reports into a comprehensive market analysis"""
@@ -428,19 +425,12 @@ async def market_analysis(query: str):
 
 
 @router.post("/visualize-trend")
-async def visualize_market_trend(query: str, output_format: str = "base64"):
+async def visualize_market_trend(query: str):
     """Endpoint for market trend visualization"""
     analyzer = MarketAnalyzer()
     analyzer.breakdown_problem(query)
     trend_data = await analyzer.generate_trend_visualization()
 
-    visualization = analyzer.visualize_trend(trend_data, output_format)
+    visualization = analyzer.visualize_trend(trend_data)
 
-    if output_format == "base64":
-        return {"trend_visualization": visualization}
-    elif output_format == "file":
-        return Response(
-            content=open(str(visualization), "rb").read(), media_type="image/png"
-        )
-    else:
-        return {"message": "Unsupported output format"}
+    return visualization
