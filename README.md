@@ -118,15 +118,15 @@ flowchart TD
 
 ### Prerequisites
 
-•⁠ ⁠Python 3.10+
-•⁠ ⁠Poetry (dependency management)
+•⁠ ⁠Node.js 14+
+•⁠ ⁠NPM 6+
 
 ### Installation
 
 ⁠ bash
 git clone https://github.com/yourusername/100x-engineer.git
 cd 100x-engineer
-poetry install
+npm install
  ⁠
 
 ### Environment Configuration
@@ -139,7 +139,7 @@ Create a ⁠ .env ⁠ file with the following variables:
 ### Running the Application
 
 ⁠`bash
-streamlit run src/frontend/app_page.py
+npm start
  ⁠`
 
 ## Core Modules
